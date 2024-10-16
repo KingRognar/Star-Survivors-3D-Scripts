@@ -20,7 +20,7 @@ public class Enemy_HitEffect_Scr : MonoBehaviour
         {
             Transform particle = Instantiate(particlePrefab, collisionPoint, Quaternion.identity).transform;
             float colorVariability = Random.Range(-0.05f, 0.05f);
-            particle.GetComponent<Renderer>().material.color = particleColor + new Color(colorVariability, colorVariability, colorVariability);
+            particle.GetComponent<Renderer>().material.color = particleColor + new Color(colorVariability, colorVariability, colorVariability,0);
             particle.RotateAround(particle.position, particle.up, Random.Range(-180, 180));
             Vector3 directionToMove = projectilePosition - collisionPoint;
             directionToMove.Normalize();

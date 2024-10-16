@@ -10,6 +10,7 @@ public class Enemy_HitParticles_Scr : MonoBehaviour
     private float maxScale = 3f;
     private float lifetime = 1f;
     public Vector3 directionToMove;
+    Renderer rend;
 
     //private SpriteRenderer spriteRenderer;
 
@@ -20,7 +21,11 @@ public class Enemy_HitParticles_Scr : MonoBehaviour
     private void Update()
     {
         transform.position += directionToMove * curSpeed * Time.deltaTime;
-        GetComponent<Renderer>().material.color -= new Color(0, 0, 0, 1) * Time.deltaTime / lifetime;
+
+        if (rend != null)
+            rend.material.color -= new Color(0, 0, 0, 1) * Time.deltaTime / lifetime;
+        else
+            Debug.Log("не нашёл Renderer");
         //spriteRenderer.color -= new Color (0,0,0,1) * Time.deltaTime / lifetime;
     }
 
@@ -30,6 +35,7 @@ public class Enemy_HitParticles_Scr : MonoBehaviour
         //spriteRenderer = GetComponent<SpriteRenderer>();
         //gameObject.GetComponent<SpriteRenderer>().sprite = particleVariations[UnityEngine.Random.Range(0, particleVariations.Count)];
         transform.localScale = transform.localScale * UnityEngine.Random.Range(1, maxScale);
+        rend = GetComponent<Renderer>();
         curSpeed = UnityEngine.Random.Range(minSpeed, maxSpeed);
         lifetime = UnityEngine.Random.Range(0.5f, 1f);
         Destroy(gameObject, lifetime);

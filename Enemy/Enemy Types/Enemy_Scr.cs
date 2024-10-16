@@ -15,8 +15,11 @@ public class Enemy_Scr : MonoBehaviour
     protected virtual void Awake()
     {
         curHealth = maxHealth;
-        AddCountToDirector(EnemyId);
         //Destroy(gameObject, 15f);
+    }
+    private void Start()
+    {
+        AddCountToDirector(EnemyId);
     }
     private void Update()
     {
@@ -56,7 +59,7 @@ public class Enemy_Scr : MonoBehaviour
     protected virtual void Die()
     {
         //DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
-        //UpgradeSystem_Scr.instance.AwardEXP(expAward);
+        UpgradeSystem_Scr.instance.AwardEXP(expAward);
         Disappear();
     }
     /// <summary>
