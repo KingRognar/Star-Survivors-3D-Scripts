@@ -14,7 +14,7 @@ public class Enemy_BaseProj_Scr : MonoBehaviour
 
     protected virtual void Movement()
     {
-        transform.position += transform.up * projMovementSpeed * Time.deltaTime;
+        transform.position += -transform.forward * projMovementSpeed * Time.deltaTime;
     }
 
     private void OnBecameInvisible()

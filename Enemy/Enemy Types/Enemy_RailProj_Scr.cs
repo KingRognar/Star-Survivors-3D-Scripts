@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Enemy_RailProj_Scr : Enemy_BaseProj_Scr
 {
-    private SpriteRenderer spriteRenderer;
+    private Renderer rend;
     private Material shaderMaterial;
 
     private bool isGlowStarted = false;
@@ -16,8 +16,8 @@ public class Enemy_RailProj_Scr : Enemy_BaseProj_Scr
     private void Awake()
     {
         Destroy(gameObject, 4f);
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        shaderMaterial = spriteRenderer.material;
+        rend = GetComponent<Renderer>();
+        shaderMaterial = rend.material;
     }
 
     protected override void Update()

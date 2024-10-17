@@ -18,6 +18,7 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
     private bool shootFromRightSpawnPoint = true;
     [SerializeField] private GameObject railPrefab;
     private Transform railSpawnPoint1, railSpawnPoint2;
+    private Vector3 previousPosition;
 
     [SerializeField] private float avoidanceDistance = 1f;
 
@@ -36,7 +37,9 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
 
     protected override void EnemyMovement()
     {
+        previousPosition = transform.position;
         transform.position = Vector3.Lerp(transform.position, GetMoveToPosition(), movementSpeed * Time.deltaTime);
+        Sway();
 
         //TODO: нужен ли базовый метод в Enemy_Scr?
         if (lastShotTime < Time.time)
@@ -47,6 +50,11 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
         }
     }
 
+    private void Sway()
+    {
+        float actualXSpeed = (transform.position - previousPosition).x;
+        transform.rotation = Quaternion.AngleAxis(-actualXSpeed * 80f, transform.forward);
+    }
     private Vector3 GetMoveToPosition()
     {
         if (playerTrans != null)
@@ -60,7 +68,7 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
         {
             if (railgunner == null || railgunner == transform)
                 continue;
-            float distance = Vector2.SqrMagnitude(transform.position - railgunner.position);
+            float distance = Vector3.SqrMagnitude(transform.position - railgunner.position);
             float sqrAvoidance = avoidanceDistance * avoidanceDistance;
             if (distance > sqrAvoidance)
                 continue;
@@ -91,7 +99,7 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
             shootFromRightSpawnPoint = !shootFromRightSpawnPoint;
         }
 
-        Vector3 midLocalPosition = new Vector3(0, railSpawnPoint1.localPosition.y, 0);
+        Vector3 midLocalPosition = new Vector3(0, 0, railSpawnPoint1.localPosition.z);
         Vector3 strtLocalPos = newRail.localPosition;
         float t = 0;
         while (t != 1)
