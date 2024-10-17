@@ -9,12 +9,12 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
 {
     private static List<Transform> railgunners = new List<Transform>();
 
-    [SerializeField] private float yPosition;
+    [SerializeField] private float zPosition;
     private Transform playerTrans;
 
 
     [SerializeField] private float timeBetweenShots;
-    private float lastShotTime = 3f;
+    private float lastShotTime;
     private bool shootFromRightSpawnPoint = true;
     [SerializeField] private GameObject railPrefab;
     private Transform railSpawnPoint1, railSpawnPoint2;
@@ -25,7 +25,7 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
     {
         base.Awake();
         railgunners.Add(transform);
-        lastShotTime = Time.time + 3f;
+        lastShotTime = Time.time + timeBetweenShots;
     }
     private void Start()
     {
@@ -50,7 +50,7 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
     private Vector3 GetMoveToPosition()
     {
         if (playerTrans != null)
-            return new Vector3(playerTrans.position.x + CalculateAdjustDistance(avoidanceDistance), yPosition, 0);
+            return new Vector3(playerTrans.position.x + CalculateAdjustDistance(avoidanceDistance), 0, zPosition);
         return transform.position;
     }
     private float CalculateAdjustDistance(float avoidanceDistance)
@@ -75,6 +75,12 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
     private async Task ShootRail()
     {
         Transform newRail;
+        if (railPrefab == null)
+        {
+            Debug.Log("У Railgunner отсутствует Rail префаб");
+            return;
+        }
+
         if (shootFromRightSpawnPoint)
         {
             newRail = Instantiate(railPrefab, railSpawnPoint1.position, Quaternion.Euler(0, 0, 180), transform).transform;
