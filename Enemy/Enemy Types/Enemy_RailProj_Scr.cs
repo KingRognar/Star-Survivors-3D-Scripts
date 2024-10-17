@@ -12,6 +12,7 @@ public class Enemy_RailProj_Scr : Enemy_BaseProj_Scr
     private bool isMovementStarted = false;
     private float currentGlowIntensity = 0f;
 
+    //TEST
 
     private void Awake()
     {
