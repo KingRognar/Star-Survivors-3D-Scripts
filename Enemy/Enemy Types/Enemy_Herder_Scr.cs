@@ -18,6 +18,7 @@ public class Enemy_Herder_Scr : Enemy_Scr
 
     private void Start()
     {
+        AddCountToDirector(EnemyId);
         GetChildrenTransforms();
         ArrangeHerd();
         GetNewMovePosition();
@@ -25,13 +26,16 @@ public class Enemy_Herder_Scr : Enemy_Scr
 
     protected override void EnemyMovement()
     {
-        rotorTransform.Rotate(transform.forward, 180 * Time.deltaTime, Space.Self);
+        rotorTransform.Rotate(transform.up, 180 * Time.deltaTime, Space.Self);
         
         if (nextModeTime < Time.time)
             ArrangeHerd();
 
         if (Time.time < timeToStop)
             MoveHerdToNewPositions();
+
+        if ((inDefenceMode && Time.time > nextModeTime - 1f) || (!inDefenceMode))
+            HerdAttackGlow();
 
         if (inDefenceMode)
             MoveToNewPosition();
@@ -46,9 +50,10 @@ public class Enemy_Herder_Scr : Enemy_Scr
 
         foreach (Transform herd in herdTransforms)
         {
-            if (herd == null)
+            if (herd == null || bulletPrefab == null)
                 continue;
             Transform newBullet = Instantiate(bulletPrefab, herd.position, herd.rotation).transform;
+            newBullet.GetComponent<Renderer>().material.SetFloat("_GlowIntensity", 1f);
         }
 
         nextAttackTime = Time.time + attackDelay;
@@ -56,7 +61,6 @@ public class Enemy_Herder_Scr : Enemy_Scr
 
     private void MoveToNewPosition()
     {
-        //transform.position = Vector3.MoveTowards(transform.position, positionToMove, movementSpeed * Time.deltaTime);
         transform.position = Vector3.Lerp(oldPosition, positionToMove, (Time.time - startTime) / timeToChangeMode);
     }
     private void GetNewMovePosition()
@@ -72,7 +76,22 @@ public class Enemy_Herder_Scr : Enemy_Scr
             if (herdTransforms[i] == null)
                 continue;
             herdTransforms[i].localPosition = Vector3.Lerp(herdPrevPositions[i], herdLocalPositions[i], (Time.time - startTime) / timeToMove);
-            herdTransforms[i].rotation = Quaternion.FromToRotation(Vector3.up, herdTransforms[i].position - transform.position);
+            if (Time.time < (startTime + 3f))
+            {
+                if (inDefenceMode)
+                    herdTransforms[i].rotation = Quaternion.Lerp(herdTransforms[i].rotation,
+                        Quaternion.FromToRotation(Vector3.forward, herdTransforms[i].position - transform.position), (Time.time - startTime) / 3f);
+                else
+                    herdTransforms[i].rotation = Quaternion.Lerp(herdTransforms[i].rotation,
+                        Quaternion.FromToRotation(Vector3.forward, transform.position - herdTransforms[i].position), (Time.time - startTime) / 3f);
+            }
+            else
+            {
+                if (inDefenceMode)
+                    herdTransforms[i].rotation = Quaternion.FromToRotation(Vector3.forward, herdTransforms[i].position - transform.position);
+                else
+                    herdTransforms[i].rotation = Quaternion.FromToRotation(Vector3.forward, transform.position - herdTransforms[i].position);
+            }
         }
     }
     private void ArrangeHerd()
@@ -105,7 +124,7 @@ public class Enemy_Herder_Scr : Enemy_Scr
     {
         for (int i = 0; i < herdTransforms.Count; i++)
         {
-            herdLocalPositions.Add(Quaternion.AngleAxis(360 / herdTransforms.Count * i, rotorTransform.forward) * (rotorTransform.up * 0.5f));
+            herdLocalPositions.Add(Quaternion.AngleAxis(360 / herdTransforms.Count * i, -rotorTransform.up) * rotorTransform.forward);
         }
     }
     private void ArrangeHerdInDiamond()
@@ -114,30 +133,37 @@ public class Enemy_Herder_Scr : Enemy_Scr
         {
             case 6:
                     herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 1, 0), new Vector3(-1, 1, 0), new Vector3(-1, 0, 0),
-                    new Vector3(0, -1, 0), new Vector3(1, -1, 0), new Vector3(1, 0, 0) });
+                    { new Vector3(0, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, 0),
+                    new Vector3(0, 0, -1), new Vector3(1, 0, -1), new Vector3(1, 0, 0) });
                 break;
             case 5:
                 herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 1, 0), new Vector3(-1, 1, 0), new Vector3(-1, 0, 0),
-                    new Vector3(0, -1, 0), new Vector3(1, 0, 0) });
+                    { new Vector3(0, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, 0),
+                    new Vector3(0, 0, -1), new Vector3(1, 0, 0) });
                 break;
             case 4:
                 herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 1, 0), new Vector3(-1, 0, 0),
-                    new Vector3(0, -1, 0), new Vector3(1, 0, 0) });
+                    { new Vector3(0, 0, 1), new Vector3(-1, 0, 0),
+                    new Vector3(0, 0, -1), new Vector3(1, 0, 0) });
                 break;
             case 3:
                 herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 1, 0), new Vector3(-1, 1, 0), new Vector3(-1, 0, 0)});
+                    { new Vector3(0, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, 0)});
                 break;
             case 2:
                 herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 1, 0), new Vector3(0, -1, 0)});
+                    { new Vector3(0, 0, 1), new Vector3(0, 0, -1)});
                 break;
             case 1:
-                herdLocalPositions.Add(new Vector3(0, 1, 0));
+                herdLocalPositions.Add(new Vector3(0, 0, 1));
                 break;
+        }
+    }
+    private void HerdAttackGlow()
+    {
+        foreach (Transform herd in herdTransforms)
+        {
+            herd.GetComponent<Renderer>().materials[0].SetFloat("_GlowIntensity", 1f);
         }
     }
     private void GetChildrenTransforms()

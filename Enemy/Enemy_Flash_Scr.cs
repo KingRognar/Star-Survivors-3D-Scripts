@@ -22,13 +22,23 @@ public class Enemy_Flash_Scr : MonoBehaviour
     public void Awake()
     {
         meshRendrer = GetComponent<MeshRenderer>();
-        shaderMaterial = meshRendrer.material;
+        foreach (Material mat in meshRendrer.materials)
+        {
+            if (mat.name.EndsWith("Flash_Mat (Instance)"))
+                shaderMaterial = mat;
+        }
     }
 
     public void StartFlash()
     {
         cts = new CancellationTokenSource();
         token = cts.Token;
+        if (shaderMaterial == null)
+        {
+            Debug.Log("Не нашёл Flash_Mat", this);
+            return;
+        }
+
         _ = FlashTask(token);
     }
     private async Task FlashTask(CancellationToken token)
