@@ -1,25 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class Weapon_MachinegunBullet : MonoBehaviour
+public class Weapon_MachinegunBullet : Weapon_BaseProjectile_Scr
 {
-    public float bulletSpeed = 2f;
-
-    [SerializeField] private AudioClip[] hitAudioClips;
-
-    void Update()
-    {
-        transform.parent.position += transform.parent.forward * Time.deltaTime * bulletSpeed;
-        //transform.position += transform.forward * Time.deltaTime * bulletSpeed;
-    }
-
-    private void OnBecameInvisible()
-    {
-        Destroy(transform.parent.gameObject);
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (!other.gameObject.CompareTag("Enemy"))

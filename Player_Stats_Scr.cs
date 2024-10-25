@@ -57,6 +57,7 @@ public class Player_Stats_Scr : MonoBehaviour
         public static float spreadAngle = 5f;
         public static int damage = 5;
         public static float projectileScale = 1f;
+        public static int projectileCount = 1;
     }
     public static class CircleBots
     {
@@ -75,6 +76,14 @@ public class Player_Stats_Scr : MonoBehaviour
         public static float damageMultiplier = 1f;
         public static int chainsCount = 4;
         public static float chainDistance = 1.5f;
+    }
+    public static class Grinder
+    {
+        public static float spawnDelay = 1f;
+        public static int damage = 10;
+        public static float projectileScale = 1f;
+        public static int projectileCount = 1;
+        public static int collisionsNum = 3;
     }
 }
 

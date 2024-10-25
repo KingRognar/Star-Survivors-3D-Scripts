@@ -26,7 +26,7 @@ public class UI_LvlUp_UpgradeOption_Scr : MonoBehaviour, IPointerClickHandler
         {
             foreach (GenericUpgrade_SO upgrade in upgrade_SO.nextUpgrades)
             {
-                upgrade.WeaponScript = upgrade_SO.WeaponScript;
+                upgrade.WeaponScript = upgrade_SO.WeaponScript; //BUG: когда выбрал machinegun damage N2 при 2 опциях всё полетело
             }
             UpgradeSystem_Scr.instance.upgradesList.AddRange(upgrade_SO.nextUpgrades);
         }
