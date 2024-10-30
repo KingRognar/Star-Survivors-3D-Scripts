@@ -7,10 +7,10 @@ using UnityEngine.Events;
 public class EnemyWave_SO : ScriptableObject
 {
     public float waveDuration;
-    public List<GameObject> enemiesList = new List<GameObject>();
-    public List<int> totalEnemies = new List<int>();
-    public List<SpawnMethod> spawnMethod = new List<SpawnMethod>();
-    public List<float> spawnDelay = new List<float>();
+    public List<GameObject> enemiesList = new();
+    public List<int> totalEnemies = new();
+    public List<SpawnMethod> spawnMethod = new();
+    public List<float> spawnDelay = new();
 
     public enum SpawnMethod
     {
