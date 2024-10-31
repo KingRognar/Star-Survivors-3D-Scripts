@@ -2,19 +2,19 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Splines;
 
-public class Weapon_Rocket_Scr : MonoBehaviour
+public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
 {
     private Spline spline;
     private SplineContainer container;
-    [SerializeField] private float movementTime = 2f;
-    private float movementSpeed = 15f;
+    //[SerializeField] private float movementTime = 2f;
     private float distanceCovered = 0;
     //private float startTime;
     private Vector3 tangentVector;
     private Transform targetTransform;
     [SerializeField] private LayerMask targetLayer;
 
-    //TODO: поменять tangent на более правильный
+    //TODO: добавить VFX для взрыва
+    //TODO: добавить VFX для огня\дыма из сопла
 
     private void Start()
     {
@@ -23,12 +23,8 @@ public class Weapon_Rocket_Scr : MonoBehaviour
 
         //startTime = Time.time;
     }
-    private void Update()
-    {
-        RocketMovement();
-    }
 
-    private void RocketMovement()
+    protected override void ProjectileMovement()
     {
         if (spline == null)
         {
@@ -40,10 +36,10 @@ public class Weapon_Rocket_Scr : MonoBehaviour
             Destroy(gameObject);
         //transform.position = spline.EvaluatePosition((Time.time - startTime) / movementTime);*/
 
-        distanceCovered += movementSpeed * Time.deltaTime / spline.GetLength();
+        distanceCovered += projectileSpeed * Time.deltaTime / spline.GetLength();
         if (distanceCovered >= 1)
         {
-            Destroy(gameObject);
+            Explode();
         }
         transform.position = spline.EvaluatePosition(distanceCovered);
         transform.LookAt(spline.EvaluatePosition(distanceCovered + 0.01f));
@@ -94,6 +90,14 @@ public class Weapon_Rocket_Scr : MonoBehaviour
             targetTransform = firstCollider[0].transform;
         }
 
+    }
+    private void Explode()
+    {
+        if (targetTransform != null)
+            targetTransform.GetComponent<Enemy_Scr>().TakeDamage(Player_Stats_Scr.Machinegun.damage, transform.position);
+
+        //Sound_FXManager_Scr.instance.PlayRandomFXClip(hitAudioClips, transform, 1); //TODO: Add FXManager
+        Destroy(gameObject);
     }
     private void OutOfTargetDestroy()
     {

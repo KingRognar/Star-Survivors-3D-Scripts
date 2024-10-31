@@ -85,6 +85,13 @@ public class Player_Stats_Scr : MonoBehaviour
         public static int projectileCount = 1;
         public static int collisionsNum = 3;
     }
+    public static class RocketLauncher
+    {
+        public static float spawnDelay = 0.8f;
+        public static int damage = 10;
+        public static float projectileScale = 1f;
+        public static int projectileCount = 1;
+    }
 }
 
 
