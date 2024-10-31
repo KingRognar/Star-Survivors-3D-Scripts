@@ -9,8 +9,8 @@ public class Weapon_Rocket_Scr : MonoBehaviour
     [SerializeField] private float movementTime = 2f;
     private float movementSpeed = 15f;
     private float distanceCovered = 0;
-    private float startTime;
-    private Quaternion randRotation;
+    //private float startTime;
+    private Vector3 tangentVector;
     private Transform targetTransform;
     [SerializeField] private LayerMask targetLayer;
 
@@ -21,7 +21,7 @@ public class Weapon_Rocket_Scr : MonoBehaviour
         SeekTarget();
         CreateMovementSpline();
 
-        startTime = Time.time;
+        //startTime = Time.time;
     }
     private void Update()
     {
@@ -46,7 +46,7 @@ public class Weapon_Rocket_Scr : MonoBehaviour
             Destroy(gameObject);
         }
         transform.position = spline.EvaluatePosition(distanceCovered);
-        transform.LookAt(spline.EvaluateUpVector(distanceCovered - 0.01f));
+        transform.LookAt(spline.EvaluatePosition(distanceCovered + 0.01f));
 
         UpdateMovementSpline();
     }
@@ -60,13 +60,16 @@ public class Weapon_Rocket_Scr : MonoBehaviour
 
         container = GetComponent<SplineContainer>();
 
-        spline = new();
-        randRotation = Quaternion.AngleAxis(Random.Range(0, 360), transform.forward);
-        BezierKnot knot1 = new(transform.position, Vector3.zero, randRotation * transform.up * 3 + transform.forward);
-        randRotation = Quaternion.AngleAxis(Random.Range(0, 360), transform.forward);
-        BezierKnot knot2 = new(targetTransform.position, randRotation * -transform.up - transform.forward, Vector3.zero);
-        spline.Add(knot1);
-        spline.Add(knot2);
+        if (Random.Range(0f, 1f) >= 0.5f)
+            tangentVector = Vector3.Cross((targetTransform.position - transform.position).normalized, Vector3.up);
+        else
+            tangentVector = Vector3.Cross((targetTransform.position - transform.position).normalized, Vector3.down);
+
+        spline = new()
+        {
+            new BezierKnot(transform.position, Vector3.zero, tangentVector * 3),
+            new BezierKnot(targetTransform.position, tangentVector, Vector3.zero)
+        };
 
         container.AddSpline(spline);
     }
@@ -77,7 +80,7 @@ public class Weapon_Rocket_Scr : MonoBehaviour
             OutOfTargetDestroy();
             return;
         }
-        spline.SetKnot(1, new(targetTransform.position, randRotation * -transform.up - transform.forward, Vector3.zero));
+        spline.SetKnot(1, new(targetTransform.position, tangentVector, Vector3.zero));
     }
     private void SeekTarget()
     {

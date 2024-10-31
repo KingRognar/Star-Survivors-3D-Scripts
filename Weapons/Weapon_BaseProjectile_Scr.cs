@@ -6,6 +6,8 @@ public class Weapon_BaseProjectile_Scr : MonoBehaviour
 
     [SerializeField] private AudioClip[] hitAudioClips;
 
+    //TODO: разобраться с OnBecameInvisible - по какой-то причине срабатывает спустя лет 50 
+
     void Update()
     {
         ProjectileMovement();
