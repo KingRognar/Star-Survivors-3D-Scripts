@@ -35,13 +35,13 @@ public static class ExtensionMethods_Scr
     #endregion
 
     #region Camera Corners In World
-    public static Vector3 GetUpperLeftCorner(this Camera camera)
+    public static Vector3 GetUpperRightCorner(this Camera camera)
     {
-        return camera.ScreenToViewportPoint(new Vector3(0, camera.pixelHeight, camera.transform.position.y));
+        return camera.ScreenToWorldPoint(new Vector3(camera.pixelWidth, camera.pixelHeight, camera.transform.position.y));
     }
     public static Vector3 GetBottomLeftCorner(this Camera camera)
     {
-        return camera.ScreenToViewportPoint(new Vector3(0, 0, camera.transform.position.y));
+        return camera.ScreenToWorldPoint(new Vector3(0, 0, camera.transform.position.y));
     }
     #endregion
 }

@@ -6,15 +6,40 @@ using UnityEngine;
 [CustomEditor(typeof(EnemyWave_SO))]
 public class EnemyWaveInspector_Scr : Editor
 {
-    int count;
+    //int count;
+    private GUIStyle labelStyle;
 
     public override void OnInspectorGUI()
     {
-        //base.OnInspectorGUI();
         Display();
     }
 
     private void Display()
+    {
+        serializedObject.Update();
+
+        labelStyle = new(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
+
+        //---// Длительность волны
+        SerializedProperty waveDuration = serializedObject.FindProperty("waveDuration");
+        EditorGUILayout.PropertyField(waveDuration, new GUIContent("Wave Duration (in seconds)"));
+        EditorGUILayout.Space(20f);
+
+        SerializedProperty enemiesInWave = serializedObject.FindProperty("enemiesInWave");
+
+        enemiesInWave.isExpanded = EditorGUILayout.Foldout(enemiesInWave.isExpanded, "Enemies in wave", true);
+        EditorGUI.indentLevel++;
+        if (enemiesInWave.isExpanded)
+        {
+            for (int i = 0; i < enemiesInWave.arraySize; i++)
+                EditorGUILayout.PropertyField(enemiesInWave.GetArrayElementAtIndex(i));
+        }
+        EditorGUI.indentLevel--;
+
+        serializedObject.ApplyModifiedProperties();
+    }
+
+/*    private void OldDisplay()
     {
         serializedObject.Update();
 
@@ -66,7 +91,6 @@ public class EnemyWaveInspector_Scr : Editor
 
         serializedObject.ApplyModifiedProperties();
     }
-
     void AddElements()
     {
         CheckElements();
@@ -129,5 +153,5 @@ public class EnemyWaveInspector_Scr : Editor
             else
                 spawnDelay.arraySize++;
         }
-    }
+    }*/
 }

@@ -9,8 +9,8 @@ public class Enemy_Director_Scr : MonoBehaviour
 {
     public static Enemy_Director_Scr instance;
 
-    [SerializeField] private List<EnemyWave_SO> wavesSOs = new List<EnemyWave_SO>();
-    static public Dictionary<int,int> enemyCountByID = new Dictionary<int,int>();
+    [SerializeField] private List<EnemyWave_SO> wavesSOs = new();
+    static public Dictionary<int,int> enemyCountByID = new();
     //[SerializeField] private List<int> spawnedEnemiesByType = new List<int>();
     private int currentWave = 0;
     private float nextWaveIn = 0;
@@ -24,8 +24,8 @@ public class Enemy_Director_Scr : MonoBehaviour
         else
             Destroy(gameObject);
 
-        upperPoint = Camera.main.GetUpperLeftCorner().y;
-        leftmostPoint = Camera.main.GetUpperLeftCorner().x;
+        upperPoint = Camera.main.GetUpperRightCorner().y;
+        leftmostPoint = Camera.main.GetUpperRightCorner().x;
 
         nextWaveIn = 0;
 
@@ -53,13 +53,13 @@ public class Enemy_Director_Scr : MonoBehaviour
                         return;
                     }
 
-                    for (int i = 0; i < wavesSOs[currentWave].enemiesList.Count; i++)
+                    for (int i = 0; i < wavesSOs[currentWave].enemiesInWave.Count; i++)
                     {
                         _ = SpawnEnemy(
-                            wavesSOs[currentWave].enemiesList[i], 
-                            wavesSOs[currentWave].totalEnemies[i], 
-                            wavesSOs[currentWave].spawnMethod[i], 
-                            wavesSOs[currentWave].spawnDelay[i],
+                            wavesSOs[currentWave].enemiesInWave[i].enemyPrefab,
+                            wavesSOs[currentWave].enemiesInWave[i].enemiesCount, 
+                            wavesSOs[currentWave].enemiesInWave[i].spawnMethod, 
+                            wavesSOs[currentWave].enemiesInWave[i].spawnDelay,
                             wavesSOs[currentWave].waveDuration);
                     }
 

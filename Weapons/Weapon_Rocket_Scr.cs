@@ -6,9 +6,7 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
 {
     private Spline spline;
     private SplineContainer container;
-    //[SerializeField] private float movementTime = 2f;
     private float distanceCovered = 0;
-    //private float startTime;
     private Vector3 tangentVector;
     private Transform targetTransform;
     [SerializeField] private LayerMask targetLayer;
@@ -20,8 +18,6 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
     {
         SeekTarget();
         CreateMovementSpline();
-
-        //startTime = Time.time;
     }
 
     protected override void ProjectileMovement()
@@ -31,10 +27,6 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
             Debug.Log("У ракеты отсутствует spline");
             return;
         }
-
-        /*if ((Time.time - startTime) > movementTime)
-            Destroy(gameObject);
-        //transform.position = spline.EvaluatePosition((Time.time - startTime) / movementTime);*/
 
         distanceCovered += projectileSpeed * Time.deltaTime / spline.GetLength();
         if (distanceCovered >= 1)

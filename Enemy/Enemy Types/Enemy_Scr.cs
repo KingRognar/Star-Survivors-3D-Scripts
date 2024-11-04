@@ -13,10 +13,9 @@ public class Enemy_Scr : MonoBehaviour
     protected float curHealth;
     public int expAward = 2;
 
-    protected virtual void Awake()
+    private void Awake()
     {
-        curHealth = maxHealth;
-        //Destroy(gameObject, 15f);
+        Initialize();
     }
     private void Start()
     {
@@ -84,7 +83,7 @@ public class Enemy_Scr : MonoBehaviour
     /// </summary>
     protected virtual void EnemyMovement()
     {
-        transform.position += -transform.forward * Time.deltaTime * movementSpeed;
+        transform.position += movementSpeed * Time.deltaTime * -transform.forward;
         if (transform.position.z <= -15)
             Disappear();
     }
@@ -94,6 +93,11 @@ public class Enemy_Scr : MonoBehaviour
     }
     #endregion
 
+    protected virtual void Initialize()
+    {
+        curHealth = maxHealth;
+        //Destroy(gameObject, 15f);
+    }
     protected void AddCountToDirector(int id)
     {
         if (Enemy_Director_Scr.enemyCountByID.ContainsKey(id))

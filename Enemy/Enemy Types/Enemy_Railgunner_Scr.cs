@@ -7,7 +7,7 @@ using static UnityEngine.UI.ScrollRect;
 
 public class Enemy_Railgunner_Scr : Enemy_Scr
 {
-    private static List<Transform> railgunners = new List<Transform>();
+    private static List<Transform> railgunners = new();
 
     [SerializeField] private float zPosition;
     private Transform playerTrans;
@@ -22,12 +22,6 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
 
     [SerializeField] private float avoidanceDistance = 1f;
 
-    protected override void Awake()
-    {
-        base.Awake();
-        railgunners.Add(transform);
-        lastShotTime = Time.time + timeBetweenShots;
-    }
     private void Start()
     {
         playerTrans = Player_Stats_Scr.instance != null ? Player_Stats_Scr.instance.transform : null;
@@ -99,7 +93,7 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
             shootFromRightSpawnPoint = !shootFromRightSpawnPoint;
         }
 
-        Vector3 midLocalPosition = new Vector3(0, 0, railSpawnPoint1.localPosition.z);
+        Vector3 midLocalPosition = new(0, 0, railSpawnPoint1.localPosition.z);
         Vector3 strtLocalPos = newRail.localPosition;
         float t = 0;
         while (t != 1)
@@ -125,5 +119,12 @@ public class Enemy_Railgunner_Scr : Enemy_Scr
     {
         railgunners.Remove(transform);
         base.Die();
+    }
+
+    protected override void Initialize()
+    {
+        base.Initialize();
+        railgunners.Add(transform);
+        lastShotTime = Time.time + timeBetweenShots;
     }
 }
