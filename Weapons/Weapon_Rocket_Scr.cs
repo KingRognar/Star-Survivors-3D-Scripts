@@ -22,7 +22,7 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
 
     protected override void ProjectileMovement()
     {
-        if (spline == null)
+        if (spline == null) //TODO: решить что делать с ракетой когда нет сплайна с целью
         {
             Debug.Log("У ракеты отсутствует spline");
             return;
@@ -74,7 +74,7 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
     {
         Collider[] firstCollider = new Collider[1];
         float curRadius = 0;
-        while (targetTransform == null || curRadius >= 30)
+        while (targetTransform == null && curRadius <= 30)
         {
             curRadius += 5;
             if (Physics.OverlapSphereNonAlloc(transform.position, curRadius, firstCollider, targetLayer, QueryTriggerInteraction.Collide) == 0)
@@ -88,6 +88,8 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
         if (targetTransform != null)
             targetTransform.GetComponent<Enemy_Scr>().TakeDamage(Player_Stats_Scr.Machinegun.damage, transform.position);
 
+        GetComponentInChildren<RocketSmoke_Scr>().rocketIsDestroyed = true;
+        transform.DetachChildren();
         //Sound_FXManager_Scr.instance.PlayRandomFXClip(hitAudioClips, transform, 1); //TODO: Add FXManager
         Destroy(gameObject);
     }

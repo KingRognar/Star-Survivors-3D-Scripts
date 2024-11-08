@@ -47,7 +47,8 @@ public class Enemy_Scr : MonoBehaviour
         curHealth -= damage;
 
         GetComponent<Enemy_Flash_Scr>().StartFlash();
-        GetComponent<Enemy_HitEffect_Scr>().SpawnParticles(dmgTakenFromPos);
+        DebriesMaker_Scr.instance.HitFromPosAndDir(transform.position, dmgTakenFromPos - transform.position);
+        //GetComponent<Enemy_HitEffect_Scr>().SpawnParticles(dmgTakenFromPos);
         Pushback(damage);
 
         if (curHealth <= 0)
@@ -58,7 +59,7 @@ public class Enemy_Scr : MonoBehaviour
     /// </summary>
     protected virtual void Die()
     {
-        //DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
+        DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
         UpgradeSystem_Scr.instance.AwardEXP(expAward);
         Disappear();
     }

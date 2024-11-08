@@ -67,8 +67,9 @@ public class Enemy_Flash_Scr : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (cts != null)
-            cts.Cancel();
+        /*if (cts != null)
+            cts.Cancel();*/
+        cts?.Cancel();
     }
 }
 

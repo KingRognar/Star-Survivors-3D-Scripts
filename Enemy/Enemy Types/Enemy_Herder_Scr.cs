@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Enemy_Herder_Scr : Enemy_Scr
 {
-    [HideInInspector] public List<Transform> herdTransforms = new List<Transform>();
-    private List<Vector3> herdLocalPositions = new List<Vector3>();
-    private List<Vector3> herdPrevPositions = new List<Vector3>();
+    [HideInInspector] public List<Transform> herdTransforms = new ();
+    private List<Vector3> herdLocalPositions = new ();
+    private List<Vector3> herdPrevPositions = new ();
     private Transform rotorTransform;
     private bool inDefenceMode = false;
     [SerializeField] private float timeToMove = 3f; private float timeToStop; private float startTime;
@@ -133,29 +133,29 @@ public class Enemy_Herder_Scr : Enemy_Scr
         {
             case 6:
                     herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, 0),
-                    new Vector3(0, 0, -1), new Vector3(1, 0, -1), new Vector3(1, 0, 0) });
+                    { new (0, 0, 1), new (-1, 0, 1), new (-1, 0, 0),
+                    new (0, 0, -1), new (1, 0, -1), new (1, 0, 0) });
                 break;
             case 5:
                 herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, 0),
-                    new Vector3(0, 0, -1), new Vector3(1, 0, 0) });
+                    { new (0, 0, 1), new (-1, 0, 1), new (-1, 0, 0),
+                    new (0, 0, -1), new (1, 0, 0) });
                 break;
             case 4:
                 herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 0, 1), new Vector3(-1, 0, 0),
-                    new Vector3(0, 0, -1), new Vector3(1, 0, 0) });
+                    { new (0, 0, 1), new (-1, 0, 0),
+                    new (0, 0, -1), new (1, 0, 0) });
                 break;
             case 3:
                 herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, 0)});
+                    { new (0, 0, 1), new (-1, 0, 1), new (-1, 0, 0)});
                 break;
             case 2:
                 herdLocalPositions.AddRange(new List<Vector3>()
-                    { new Vector3(0, 0, 1), new Vector3(0, 0, -1)});
+                    { new (0, 0, 1), new (0, 0, -1)});
                 break;
             case 1:
-                herdLocalPositions.Add(new Vector3(0, 0, 1));
+                herdLocalPositions.Add(new (0, 0, 1));
                 break;
         }
     }
