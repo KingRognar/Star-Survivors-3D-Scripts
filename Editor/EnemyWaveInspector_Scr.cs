@@ -1,7 +1,10 @@
+using EnemyWave;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI.MessageBox;
 
 [CustomEditor(typeof(EnemyWave_SO))]
 public class EnemyWaveInspector_Scr : Editor
@@ -22,21 +25,105 @@ public class EnemyWaveInspector_Scr : Editor
 
         //---// Длительность волны
         SerializedProperty waveDuration = serializedObject.FindProperty("waveDuration");
-        EditorGUILayout.PropertyField(waveDuration, new GUIContent("Wave Duration (in seconds)"));
+        EditorGUILayout.PropertyField(waveDuration, new GUIContent("Wave Duration (sec)"));
         EditorGUILayout.Space(20f);
 
+        //---// Враги в волне
         SerializedProperty enemiesInWave = serializedObject.FindProperty("enemiesInWave");
 
-        enemiesInWave.isExpanded = EditorGUILayout.Foldout(enemiesInWave.isExpanded, "Enemies in wave", true);
+        DisplayListHeader(enemiesInWave, "Enemies in wave");
+
+        #region Enemy List Elemnets
         EditorGUI.indentLevel++;
         if (enemiesInWave.isExpanded)
         {
+            GUILayout.Space(10f);
+            DisplayListLabels(new() { "Enemy Prefab", "Count", "Spawn Method", "Delay" }, new() { 100, 80, 105, 80 });
+
             for (int i = 0; i < enemiesInWave.arraySize; i++)
-                EditorGUILayout.PropertyField(enemiesInWave.GetArrayElementAtIndex(i));
+                DisplayEnemyInWave(enemiesInWave.GetArrayElementAtIndex(i));
         }
         EditorGUI.indentLevel--;
+        #endregion
+
+        //---// Сквады в волне
+        SerializedProperty squadsInWave = serializedObject.FindProperty("enemySquads");
+
+        DisplayListHeader(squadsInWave, "Squads in wave");
+
+        #region Squad List Elements
+        EditorGUI.indentLevel++;
+        if (squadsInWave.isExpanded)
+        {
+            GUILayout.Space(10f);
+            DisplayListLabels(new() { "Enemy Squad", "Start time" }, new() { 200, 200 });
+
+            for (int i = 0; i < squadsInWave.arraySize; i++)
+                DisplaySquadInWave(squadsInWave.GetArrayElementAtIndex(i));
+        }
+        EditorGUI.indentLevel--;
+        #endregion
 
         serializedObject.ApplyModifiedProperties();
+    }
+
+    private void ListExpand(SerializedProperty listProperty)
+    {
+        listProperty.arraySize++;
+    }
+    private void ListRemoveLastElement(SerializedProperty listProperty)
+    {
+        if (listProperty.arraySize > 0)
+            listProperty.arraySize--;
+    }
+    private void DisplayEnemyInWave(SerializedProperty enemyProperty)
+    {
+        GUILayout.BeginHorizontal();
+        EditorGUILayout.PropertyField(enemyProperty.FindPropertyRelative("enemyPrefab"), GUIContent.none);
+        EditorGUILayout.PropertyField(enemyProperty.FindPropertyRelative("enemiesCount"), GUIContent.none);
+        EditorGUILayout.PropertyField(enemyProperty.FindPropertyRelative("spawnMethod"), GUIContent.none);
+        EditorGUILayout.PropertyField(enemyProperty.FindPropertyRelative("spawnDelay"), GUIContent.none);
+        GUILayout.EndHorizontal();
+    }
+    private void DisplaySquadInWave(SerializedProperty squadProperty)
+    {
+        GUILayout.BeginHorizontal();
+        EditorGUILayout.PropertyField(squadProperty.FindPropertyRelative("enemySquad"), GUIContent.none);
+        EditorGUILayout.PropertyField(squadProperty.FindPropertyRelative("startTime"), GUIContent.none);
+        GUILayout.EndHorizontal();
+    }
+    private void DisplayListHeader(SerializedProperty listProperty, string labelText)
+    {
+        GUILayout.BeginHorizontal();
+        listProperty.isExpanded = EditorGUILayout.Foldout(listProperty.isExpanded, labelText, true);
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("+", GUILayout.MinWidth(80f)))
+        {
+            ListExpand(listProperty);
+        }
+        EditorGUILayout.LabelField(listProperty.arraySize.ToString(), labelStyle, GUILayout.MaxWidth(30f));
+        if (GUILayout.Button("-", GUILayout.MinWidth(80f)))
+        {
+            ListRemoveLastElement(listProperty);
+        }
+        GUILayout.EndHorizontal();
+    }
+    private void DisplayListLabels(List<String> labelsText, List<float> labelsWidth)
+    {
+        if (labelsText.Count != labelsWidth.Count)
+        {
+            Debug.Log("Не удалось отобразить надписи для списка, длина labelsText не совпадает с labelsWidth");
+            return;
+        }
+
+        GUILayout.BeginHorizontal();
+        for (int i = 0; i < labelsText.Count; i++)
+        {
+            if (i != 0)
+                GUILayout.FlexibleSpace();
+            EditorGUILayout.LabelField(labelsText[i], labelStyle, GUILayout.Width(labelsWidth[i]));
+        }
+        GUILayout.EndHorizontal();
     }
 
 /*    private void OldDisplay()

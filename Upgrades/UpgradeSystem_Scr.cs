@@ -12,13 +12,15 @@ public class UpgradeSystem_Scr : MonoBehaviour
     private float multiplierForNextLvl = 1.4f;
     private int currentLvl = 1;
 
+    [SerializeField] private GameObject expShardPrefab;
+
     [SerializeField] private GameObject levelUpMenu;
 
     [SerializeField] private UI_EXP_Bar_Scr expBarUI;
     [SerializeField] private List<UI_LvlUp_UpgradeOption_Scr> UIlvlUpOptions;
 
     //public List<UpgradeOption_SO> upgradesList = new List<UpgradeOption_SO>();
-    public List<GenericUpgrade_SO> upgradesList = new List<GenericUpgrade_SO>();
+    public List<GenericUpgrade_SO> upgradesList = new ();
 
     //[SerializeField] private GenericUpgrade_SO genericUpgrade;
 
@@ -62,6 +64,14 @@ public class UpgradeSystem_Scr : MonoBehaviour
         currentLvl++;
         OpenLvlUpMenu();
     }
+    public void InstantiateExpShard(Vector3 position)
+    {
+        Instantiate(expShardPrefab, position, Quaternion.Euler( new Vector3(
+            UnityEngine.Random.Range(-360, 360), 
+            UnityEngine.Random.Range(-360, 360), 
+            UnityEngine.Random.Range(-360, 360))));
+    }
+
 
     /// <summary>
     /// Метод, открывающий меню выбора улучшений

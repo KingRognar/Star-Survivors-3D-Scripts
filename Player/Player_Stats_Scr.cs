@@ -25,6 +25,7 @@ public class Player_Stats_Scr : MonoBehaviour
         public static int maxHp = 10;
         public static int curHp = 10;
         public static int armor = 0;
+        public static float ExpCollectorRadius = 5f;
         public static float damageMultiplier
         {
             get { return damageMultiplier_; }
@@ -44,8 +45,8 @@ public class Player_Stats_Scr : MonoBehaviour
             set
             {
                 firerateMultiplier_ = value;
-                Machinegun.spawnDelay = Machinegun.spawnDelay * firerateMultiplier_;
-                CircleBots.bulletSpawnDelay = CircleBots.bulletSpawnDelay * firerateMultiplier_;
+                Machinegun.spawnDelay *= firerateMultiplier_;
+                CircleBots.bulletSpawnDelay *= firerateMultiplier_;
             }
         }
         private static float firerateMultiplier_ = 1f;

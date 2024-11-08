@@ -17,6 +17,9 @@ public class Enemy_Director_Scr : MonoBehaviour
 
     private float upperPoint = 0; private float leftmostPoint = 0;
 
+    //TODO: прикрутить спавн сквадов
+
+
     private void Awake()
     {
         if (instance == null)
@@ -71,7 +74,7 @@ public class Enemy_Director_Scr : MonoBehaviour
         }
     }
 
-    private async Task SpawnEnemy(GameObject enemyPrefab, int totalEnemies, EnemyWave_SO.SpawnMethod spawnMethod, float spawnDelay, float waveDuration)
+    private async Task SpawnEnemy(GameObject enemyPrefab, int totalEnemies, EnemyWave.SpawnMethod spawnMethod, float spawnDelay, float waveDuration)
     {
         int enemyID = enemyPrefab.GetComponent<Enemy_Scr>().EnemyId;
         float endTime = Time.time + waveDuration;
@@ -111,16 +114,16 @@ public class Enemy_Director_Scr : MonoBehaviour
     /// </summary>
     /// <param name="enemyPrefab">Префаб врага</param>
     /// <param name="spawnMethod">Enum способа спавна</param>
-    private void SpawnEnemyByMethod(GameObject enemyPrefab, EnemyWave_SO.SpawnMethod spawnMethod)
+    private void SpawnEnemyByMethod(GameObject enemyPrefab, EnemyWave.SpawnMethod spawnMethod)
     {
         switch (spawnMethod)
         {
-            case EnemyWave_SO.SpawnMethod.OnLine:
+            case EnemyWave.SpawnMethod.OnLine:
                 {
                     SpawnRandomOnLane(enemyPrefab);
                     break;
                 }
-            case EnemyWave_SO.SpawnMethod.Corners:
+            case EnemyWave.SpawnMethod.Corners:
                 {
                     SpawnOnUpperCorner(enemyPrefab, true);
                     break;

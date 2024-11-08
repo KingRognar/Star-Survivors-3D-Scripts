@@ -1,21 +1,18 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Rendering;
+using EnemyWave;
 
 [CreateAssetMenu(fileName = "New Enemy Wave", menuName = "Scriptable Objects/New Enemy Wave", order = 3)]
 public class EnemyWave_SO : ScriptableObject
 {
     public float waveDuration;
     public List<EnemyInWave> enemiesInWave = new();
+    public List<SquadInWave> enemySquads = new();
+}
 
-    public enum SpawnMethod
-    {
-        OnLine,
-        Corners
-    }
+namespace EnemyWave
+{
     [Serializable] public struct EnemyInWave
     {
         public GameObject enemyPrefab;
@@ -31,4 +28,21 @@ public class EnemyWave_SO : ScriptableObject
             spawnDelay = _spawnDelay;
         }
     }
+    [Serializable] public struct SquadInWave
+    {
+        public EnemySquad_SO enemySquad;
+        public float startTime;
+
+        public SquadInWave(EnemySquad_SO _enemySquad, float _startTime)
+        {
+            enemySquad = _enemySquad;
+            startTime = _startTime;
+        }
+    }
+    public enum SpawnMethod
+    {
+        OnLine,
+        Corners
+    }
 }
+

@@ -5,7 +5,6 @@ using UnityEngine.Splines;
 public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
 {
     private Spline spline;
-    private SplineContainer container;
     private float distanceCovered = 0;
     private Vector3 tangentVector;
     private Transform targetTransform;
@@ -40,32 +39,32 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
     }
     private void CreateMovementSpline()
     {
+        Vector3 targetPosition;
+
         if (targetTransform == null)
         {
-            Debug.Log("Ракета не нашла цель");
-            return;
+            targetPosition = Camera.main.GetRandomPointFromScreen(100, 100);
+        }
+        else { 
+            targetPosition = targetTransform.position;
         }
 
-        container = GetComponent<SplineContainer>();
-
         if (Random.Range(0f, 1f) >= 0.5f)
-            tangentVector = Vector3.Cross((targetTransform.position - transform.position).normalized, Vector3.up);
+            tangentVector = Vector3.Cross((targetPosition - transform.position).normalized, Vector3.up);
         else
-            tangentVector = Vector3.Cross((targetTransform.position - transform.position).normalized, Vector3.down);
+            tangentVector = Vector3.Cross((targetPosition - transform.position).normalized, Vector3.down);
 
         spline = new()
         {
             new BezierKnot(transform.position, Vector3.zero, tangentVector * 3),
-            new BezierKnot(targetTransform.position, tangentVector, Vector3.zero)
+            new BezierKnot(targetPosition, tangentVector, Vector3.zero)
         };
-
-        container.AddSpline(spline);
     }
     private void UpdateMovementSpline()
     {
         if (targetTransform == null)
         {
-            OutOfTargetDestroy();
+            //OutOfTargetDestroy();
             return;
         }
         spline.SetKnot(1, new(targetTransform.position, tangentVector, Vector3.zero));
@@ -81,7 +80,6 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
                 continue;
             targetTransform = firstCollider[0].transform;
         }
-
     }
     private void Explode()
     {

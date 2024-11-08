@@ -60,7 +60,7 @@ public class Enemy_Scr : MonoBehaviour
     protected virtual void Die()
     {
         DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
-        UpgradeSystem_Scr.instance.AwardEXP(expAward);
+        UpgradeSystem_Scr.instance.InstantiateExpShard(transform.position); //TODO: придумать нормальную систему спавна в зависимости от количества, нужна ли анимация?
         Disappear();
     }
     /// <summary>
