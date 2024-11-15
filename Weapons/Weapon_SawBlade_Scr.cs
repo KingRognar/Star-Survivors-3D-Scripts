@@ -20,7 +20,7 @@ public class Weapon_SawBlade_Scr : Weapon_BaseProjectile_Scr
 
         if (other.gameObject.CompareTag("Enemy"))
         {
-            other.GetComponent<Enemy_Scr>().TakeDamage(Player_Stats_Scr.Grinder.damage, transform.position);
+            other.GetComponent<IDamageable>().TakeDamage(Player_Stats_Scr.Grinder.damage, transform.position);
             bounceRandom(other.transform.position);
         }
         if (other.gameObject.CompareTag("Border"))
@@ -43,6 +43,7 @@ public class Weapon_SawBlade_Scr : Weapon_BaseProjectile_Scr
         if (collisionsLeft < 0)
             Destroy(gameObject);
 
+        otherObjPosition.y = 0;
         Vector3 generalDirection = transform.position - otherObjPosition;
         generalDirection = Quaternion.AngleAxis(Random.Range(-10, 10), Vector3.up) * generalDirection;
         transform.rotation = Quaternion.FromToRotation(Vector3.forward, generalDirection);

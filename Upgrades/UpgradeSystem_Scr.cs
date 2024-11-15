@@ -64,12 +64,28 @@ public class UpgradeSystem_Scr : MonoBehaviour
         currentLvl++;
         OpenLvlUpMenu();
     }
-    public void InstantiateExpShard(Vector3 position)
+    public void InstantiateExpShards(Vector3 position, int expAmount)
     {
-        Instantiate(expShardPrefab, position, Quaternion.Euler( new Vector3(
-            UnityEngine.Random.Range(-360, 360), 
-            UnityEngine.Random.Range(-360, 360), 
-            UnityEngine.Random.Range(-360, 360))));
+        int expLeft = expAmount;
+        while (expLeft / 50 > 1)
+        {
+            //TODO: big exp shards
+            expLeft -= 50;
+        }
+        while (expLeft / 5 > 1)
+        {
+            //TODO: medium exp shards
+            expLeft -= 5;
+        }
+        while (expLeft > 0)
+        {
+            Vector3 randAddPos = new(UnityEngine.Random.Range(-1, 1), 0, UnityEngine.Random.Range(-1, 1));
+            Instantiate(expShardPrefab, position + randAddPos.normalized, Quaternion.Euler(new Vector3(
+                UnityEngine.Random.Range(-360, 360),
+                UnityEngine.Random.Range(-360, 360),
+                UnityEngine.Random.Range(-360, 360))));
+            expLeft--;
+        }
     }
 
 

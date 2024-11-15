@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using EnemyWave;
 
 public class Enemy_Director_Scr : MonoBehaviour
 {
@@ -37,7 +38,7 @@ public class Enemy_Director_Scr : MonoBehaviour
 
     private async Task SpawnEnemiesOnTime() //TODO: придумать как не крутить по всему списку каждый кадр
     {
-        while (true)
+        while (currentWave < wavesSOs.Count)
         {
             if (destroyCancellationToken.IsCancellationRequested)
             {
@@ -50,20 +51,13 @@ public class Enemy_Director_Scr : MonoBehaviour
                 {
                     Debug.Log("Started wave " + currentWave);
 
-                    if (currentWave >= wavesSOs.Count)
+                    foreach (EnemyInWave enemyInWave in wavesSOs[currentWave].enemiesInWave)
                     {
-                        Debug.Log("Waves are ended");
-                        return;
+                        _ = SpawnEnemy(enemyInWave, wavesSOs[currentWave].waveDuration);
                     }
-
-                    for (int i = 0; i < wavesSOs[currentWave].enemiesInWave.Count; i++)
+                    foreach (SquadInWave squadInWave in wavesSOs[currentWave].enemySquads)
                     {
-                        _ = SpawnEnemy(
-                            wavesSOs[currentWave].enemiesInWave[i].enemyPrefab,
-                            wavesSOs[currentWave].enemiesInWave[i].enemiesCount, 
-                            wavesSOs[currentWave].enemiesInWave[i].spawnMethod, 
-                            wavesSOs[currentWave].enemiesInWave[i].spawnDelay,
-                            wavesSOs[currentWave].waveDuration);
+                        _ = SpawnSquad(squadInWave.enemySquad, Time.time + squadInWave.startTime);
                     }
 
                     nextWaveIn += wavesSOs[currentWave].waveDuration;
@@ -74,9 +68,9 @@ public class Enemy_Director_Scr : MonoBehaviour
         }
     }
 
-    private async Task SpawnEnemy(GameObject enemyPrefab, int totalEnemies, EnemyWave.SpawnMethod spawnMethod, float spawnDelay, float waveDuration)
+    private async Task SpawnEnemy(EnemyInWave enemyInWave, float waveDuration) //TODO: refactor
     {
-        int enemyID = enemyPrefab.GetComponent<Enemy_Scr>().EnemyId;
+        int enemyID = enemyInWave.enemyPrefab.GetComponent<Enemy_Scr>().EnemyId;
         float endTime = Time.time + waveDuration;
         float nextSpawnTime = Time.time;
         while (Time.time < endTime)
@@ -92,23 +86,40 @@ public class Enemy_Director_Scr : MonoBehaviour
                 {
                     if (enemyCountByID.ContainsKey(enemyID))
                     {
-                        if (enemyCountByID[enemyID] < totalEnemies)
+                        if (enemyCountByID[enemyID] < enemyInWave.enemiesCount)
                         {
-                            SpawnEnemyByMethod(enemyPrefab, spawnMethod);
-                            nextSpawnTime = Time.time + spawnDelay;
+                            SpawnEnemyByMethod(enemyInWave.enemyPrefab, enemyInWave.spawnMethod);
+                            nextSpawnTime = Time.time + enemyInWave.spawnDelay;
                         }
                     }
                     else
                     {
-                        SpawnEnemyByMethod(enemyPrefab, spawnMethod);
-                        nextSpawnTime = Time.time + spawnDelay;
+                        SpawnEnemyByMethod(enemyInWave.enemyPrefab, enemyInWave.spawnMethod);
+                        nextSpawnTime = Time.time + enemyInWave.spawnDelay;
                     }
                 }
             }
             await Task.Yield();
         }
     }
-    #region ----Spawn Methods
+    private async Task SpawnSquad(EnemySquad_SO enemySquad, float timeToSpawnNext)
+    {
+        int spawnedEnemies = 0;
+        while (spawnedEnemies < enemySquad.squadEnemies.Count)
+        {
+            while (timeToSpawnNext > Time.time)
+            {
+                if (destroyCancellationToken.IsCancellationRequested)
+                    return;
+                await Task.Yield();
+            }
+
+            Instantiate(enemySquad.squadEnemies[spawnedEnemies], enemySquad.spawnPositions[0], Quaternion.identity);
+            timeToSpawnNext += enemySquad.spawnDelay;
+            spawnedEnemies++;
+        }
+    } //TODO: нужны разные методы для спавна
+    #region ---- Enemy Spawn Methods
     /// <summary>
     /// Метод позволяющий выбрать способ спавна врага
     /// </summary>
@@ -154,7 +165,12 @@ public class Enemy_Director_Scr : MonoBehaviour
             return Instantiate(enemyPrefab, new Vector3(leftmostPoint, upperPoint, 0), Quaternion.identity);
     }
     #endregion
+    #region ---- Squad Spawn Methods
+    private void SpawnSquadByMethod()
+    {
 
+    }
+    #endregion
 
     /*    //// OLD VERSION
         public static Enemy_Director_Scr instance;

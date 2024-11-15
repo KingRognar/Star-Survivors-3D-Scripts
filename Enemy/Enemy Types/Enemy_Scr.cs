@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Enemy_Flash_Scr))]
 [RequireComponent(typeof(Enemy_HitEffect_Scr))]
 [RequireComponent(typeof(Rigidbody))]
-public class Enemy_Scr : MonoBehaviour
+public class Enemy_Scr : MonoBehaviour, IDamageable
 {
     public int EnemyId;
     public float movementSpeed = 2f;
@@ -25,16 +25,6 @@ public class Enemy_Scr : MonoBehaviour
     {
         EnemyMovement();
     }
-
-
-    /*private void OnTriggerEnter(Collider other)
-    {
-        if (!other.gameObject.CompareTag("Player_Bullets"))
-            return;
-
-        TakeDamage(Player_Stats_Scr.Machinegun.damage, other.transform.position); // TODO: изменить в зависимости от снаряда
-    }*/
-
 
     #region ----Enemy Behaviour
     /// <summary>
@@ -60,7 +50,7 @@ public class Enemy_Scr : MonoBehaviour
     protected virtual void Die()
     {
         DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
-        UpgradeSystem_Scr.instance.InstantiateExpShard(transform.position); //TODO: придумать нормальную систему спавна в зависимости от количества, нужна ли анимация?
+        UpgradeSystem_Scr.instance.InstantiateExpShards(transform.position, expAward); //TODO: нужна ли анимация?
         Disappear();
     }
     /// <summary>

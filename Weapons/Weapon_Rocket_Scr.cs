@@ -21,12 +21,6 @@ public class Weapon_Rocket_Scr : Weapon_BaseProjectile_Scr
 
     protected override void ProjectileMovement()
     {
-        if (spline == null) //TODO: решить что делать с ракетой когда нет сплайна с целью
-        {
-            Debug.Log("У ракеты отсутствует spline");
-            return;
-        }
-
         distanceCovered += projectileSpeed * Time.deltaTime / spline.GetLength();
         if (distanceCovered >= 1)
         {
