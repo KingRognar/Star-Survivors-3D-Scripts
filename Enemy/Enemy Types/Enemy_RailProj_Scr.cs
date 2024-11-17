@@ -19,6 +19,7 @@ public class Enemy_RailProj_Scr : Enemy_BaseProj_Scr
         Destroy(gameObject, 4f);
         rend = GetComponent<Renderer>();
         shaderMaterial = rend.material;
+        shaderMaterial.SetFloat("_GlowIntensity", 0f); 
     }
 
     protected override void Update()
@@ -41,6 +42,7 @@ public class Enemy_RailProj_Scr : Enemy_BaseProj_Scr
         {
             isMovementStarted = true;
             transform.parent = null;
+            transform.GetChild(0).gameObject.SetActive(true);
         }
     }
 }

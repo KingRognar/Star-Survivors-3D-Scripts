@@ -1,2 +1,14 @@
 fileFormatVersion: 2
 guid: 6617ed8e2107ed246a6c57d9f511e403
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - smokeVfxObj: {instanceID: 0}
+  - bulletPrefab: {fileID: 2579139193201299140, guid: d32eac160de256c49853f1766fa3a92f,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
