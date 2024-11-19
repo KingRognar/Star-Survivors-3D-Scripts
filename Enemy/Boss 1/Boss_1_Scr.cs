@@ -6,9 +6,10 @@ public class Boss_1_Scr : MonoBehaviour
     private Phase phase = Phase.phase_1;
     [SerializeField] private BodyTransforms bodyTransforms;
     [SerializeField] private VFXTransforms vfxTransforms;
-    private bool[] turretsDestroyed = new bool[3] { true, false, false};
+    private bool[] turretsDestroyed = new bool[3] { false, false, false };
+    private bool headIsTurnedBack = false;
     // start pos 0, -17.5, 9
-    
+
     //TODO: Turrets on back
 
     //TODO: BFL 
@@ -37,19 +38,39 @@ public class Boss_1_Scr : MonoBehaviour
         }
         if (phase == Phase.phase_2)
         {
-            BFLPlayerTracking();
+            if (!headIsTurnedBack)
+            {
+                BFLTurnBack();
+            } else
+            {
+                BFLPlayerTracking();
+            }
+
+
         }
         if (Input.GetKeyDown(KeyCode.H))
             vfxTransforms.bflShotVfx.gameObject.SetActive(!vfxTransforms.bflShotVfx.gameObject.activeInHierarchy);
     }
 
 
+    private void BFLTurnBack()
+    {
+        Quaternion newRotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(Vector3.left, Vector3.up), 25 * Time.deltaTime);
+        if (bodyTransforms.head.rotation == newRotation)
+        {
+            GetComponent<Animator>().SetBool("BFL is extending", true);
+            headIsTurnedBack = true;
+            return;
+        }
+        bodyTransforms.head.rotation = newRotation;
+    }
     private void BFLPlayerTracking()
     {
         Vector3 adjustedPlayerPos = Player_Stats_Scr.instance.transform.position - bodyTransforms.head.position; //TODO: handle destroyed player
         adjustedPlayerPos.y = 0;
         adjustedPlayerPos = Vector3.Cross(Vector3.up, adjustedPlayerPos);
-        bodyTransforms.head.rotation = Quaternion.LookRotation(adjustedPlayerPos, Vector3.up);
+        bodyTransforms.head.rotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(adjustedPlayerPos, Vector3.up), 25 * Time.deltaTime);
+        //bodyTransforms.head.rotation = Quaternion.LookRotation(adjustedPlayerPos, Vector3.up);
     }
 
     public void TurretIsDestriyed(int turretID)

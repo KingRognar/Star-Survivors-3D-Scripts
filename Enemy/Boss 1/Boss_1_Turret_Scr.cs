@@ -53,7 +53,6 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
 
         GetComponentInChildren<Enemy_Flash_Scr>().StartFlash();
         DebriesMaker_Scr.instance.HitFromPosAndDir(transform.position, dmgTakenFromPos - transform.position);
-        //GetComponent<Enemy_HitEffect_Scr>().SpawnParticles(dmgTakenFromPos);
 
         if (curHealth <= 0)
             Explode();
@@ -64,7 +63,6 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
         smokeVfxObj.SetActive(true);
         transform.parent.parent.parent.GetComponent<Boss_1_Scr>().TurretIsDestriyed(turretID);
         Destroy(gameObject);
-        //TODO: communicate with main Boss script
     }
 
 

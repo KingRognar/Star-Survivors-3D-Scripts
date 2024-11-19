@@ -154,7 +154,7 @@ public class UpgradeSystem_Scr : MonoBehaviour
     }
     private List<GenericUpgrade_SO> SelectSample(List<GenericUpgrade_SO> transformsList, int numberOfSamples)
     {
-        List<GenericUpgrade_SO> samples = new List<GenericUpgrade_SO>();
+        List<GenericUpgrade_SO> samples = new ();
         int itemsLeft = transformsList.Count;
         int i = 0;
         int samplesTaken = 0;
