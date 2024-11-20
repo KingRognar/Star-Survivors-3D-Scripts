@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class Boss_1_Scr : MonoBehaviour
 {
@@ -8,14 +9,11 @@ public class Boss_1_Scr : MonoBehaviour
     [SerializeField] private VFXTransforms vfxTransforms;
     private bool[] turretsDestroyed = new bool[3] { false, false, false };
     private bool headIsTurnedBack = false;
+    private bool movedToNewPos = false; private float moveT = 0; private Vector3 phase1Pos; [SerializeField] private Vector3 phase2Pos;
+    private float bflShootInterval = 10f; private float nextBflShoot = -1; private float bflShootTime;
     // start pos 0, -17.5, 9
 
-    //TODO: Turrets on back
-
     //TODO: BFL 
-    //TODO: Extend BFL at the begining of phase 2
-
-    //TODO: Health bar
 
     //TODO: Animations
 
@@ -25,6 +23,7 @@ public class Boss_1_Scr : MonoBehaviour
 
     //TODO: Boss HP Bar(s)
 
+    //TODO: прибраться
 
     private void Start()
     {
@@ -32,27 +31,32 @@ public class Boss_1_Scr : MonoBehaviour
     }
     private void Update()
     {
-        if (phase == Phase.phase_1)
-        {
+        if (phase != Phase.phase_2)
+            return;
 
-        }
-        if (phase == Phase.phase_2)
-        {
-            if (!headIsTurnedBack)
-            {
-                BFLTurnBack();
-            } else
-            {
-                BFLPlayerTracking();
-            }
+        Phase2Behaviour();
 
-
-        }
         if (Input.GetKeyDown(KeyCode.H))
             vfxTransforms.bflShotVfx.gameObject.SetActive(!vfxTransforms.bflShotVfx.gameObject.activeInHierarchy);
     }
 
 
+    private void Phase2Behaviour()
+    {
+        if (!movedToNewPos)
+            MoveToNewPos();
+        else
+            Phase2Attack();
+
+        if (!headIsTurnedBack)
+        {
+            BFLTurnBack();
+            return;
+        }
+
+        BFLPlayerTracking();
+
+    }
     private void BFLTurnBack()
     {
         Quaternion newRotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(Vector3.left, Vector3.up), 25 * Time.deltaTime);
@@ -72,6 +76,25 @@ public class Boss_1_Scr : MonoBehaviour
         bodyTransforms.head.rotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(adjustedPlayerPos, Vector3.up), 25 * Time.deltaTime);
         //bodyTransforms.head.rotation = Quaternion.LookRotation(adjustedPlayerPos, Vector3.up);
     }
+    private void MoveToNewPos()
+    {
+        transform.position = Vector3.Lerp(phase1Pos, phase2Pos, moveT);
+        moveT = Mathf.MoveTowards(moveT, 1, Time.deltaTime * 0.1f);
+        if (moveT == 1)
+            movedToNewPos = true;
+    }
+    private void Phase2Attack()
+    {
+        if (nextBflShoot <= Time.time)
+        {
+            vfxTransforms.bflShotVfx.gameObject.SetActive(true);
+            nextBflShoot += bflShootInterval;
+        }
+        if (nextBflShoot - bflShootInterval + bflShootTime < Time.time)
+        {
+            vfxTransforms.bflShotVfx.gameObject.SetActive(false);
+        }
+    }
 
     public void TurretIsDestriyed(int turretID)
     {
@@ -85,7 +108,14 @@ public class Boss_1_Scr : MonoBehaviour
             if (!turretIsDestroyed)
                 return;
         }
+        InitializePhase2();
+    }
+    private void InitializePhase2()
+    {
         phase = Phase.phase_2;
+        phase1Pos = transform.position;
+        bflShootTime = vfxTransforms.bflShotVfx.GetComponent<VisualEffect>().GetFloat("Time");
+        nextBflShoot = Time.time + bflShootInterval;
     }
 
     private enum Phase
