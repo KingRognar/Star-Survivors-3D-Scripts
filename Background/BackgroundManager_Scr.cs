@@ -10,9 +10,10 @@ public class BackgroundManager_Scr : MonoBehaviour
     private static List<GameObject> spawnedElements = new();
     [SerializeField] private float timeBetweenSpawns = 1f;
     private float lastSpawnTime = -1f;
-    private Vector3 oldSpawnPosition;
+    private Vector3 oldSpawnPosition, newSpawnPosition;
     public Vector3 spawnPosition = new Vector3(0, -100, 80);
-    public Vector3 newSpawnPosition; private float t = 1;
+    public float newSpawnHeight;
+    private float t = 1;
 
     public float backgroundSpeed = 45f;
 
@@ -27,12 +28,10 @@ public class BackgroundManager_Scr : MonoBehaviour
     {
         RunParallax();
         if (t != 1) //TODO: integrate it in to Enemy Director and\or Bosses themselvs
-            MoveToNewPosition();
+            MoveToNewHeight();
         if (Input.GetKeyDown(KeyCode.G))
         {
-            t = 0;
-            DOTween.To(() => t, x => t = x, 1f, 3f);
-            oldSpawnPosition = spawnPosition;
+            SetNewHeight(newSpawnHeight);
         }
     }
 
@@ -48,7 +47,15 @@ public class BackgroundManager_Scr : MonoBehaviour
         Instantiate(backgroundElementPrefabs[rnd], spawnPosition, Quaternion.identity); //TODO: определять z динамически
         lastSpawnTime = Time.time + timeBetweenSpawns;
     }
-    private void MoveToNewPosition()
+    public void SetNewHeight(float newHeight)
+    {
+        t = 0;
+        oldSpawnPosition = spawnPosition;
+        newSpawnPosition = spawnPosition;
+        newSpawnPosition.y = newHeight;
+        DOTween.To(() => t, x => t = x, 1f, 3f);
+    }
+    private void MoveToNewHeight()
     {
         //t = Mathf.MoveTowards(t, 1, Time.deltaTime);
         spawnPosition = Vector3.Lerp(oldSpawnPosition, newSpawnPosition, t);

@@ -9,6 +9,7 @@ public class EnemyWave_SO : ScriptableObject
     public float waveDuration;
     public List<EnemyInWave> enemiesInWave = new();
     public List<SquadInWave> enemySquads = new();
+    public WaveEndEvent_SO waveEndEvent;
 }
 
 namespace EnemyWave

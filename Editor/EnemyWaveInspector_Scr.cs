@@ -2,6 +2,7 @@ using EnemyWave;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI.MessageBox;
@@ -63,6 +64,31 @@ public class EnemyWaveInspector_Scr : Editor
         }
         EditorGUI.indentLevel--;
         #endregion
+
+        //---// WEE в волне
+        SerializedProperty wee = serializedObject.FindProperty("waveEndEvent");
+
+        if (wee.objectReferenceValue != null)
+        {
+
+            switch (wee.objectReferenceValue.GetType().ToString())
+            {
+                case "MoveBackground_WEE_SO":
+
+                    SerializedObject serObj = new SerializedObject(wee.objectReferenceValue);
+                    EditorGUILayout.PropertyField(wee);
+                    EditorGUILayout.PropertyField(serObj.FindProperty("newHeight"));
+                    serObj.ApplyModifiedProperties();
+                    break;
+                default:
+                    EditorGUILayout.PropertyField(wee);
+                    break;
+            }
+        }
+        else
+        {
+            EditorGUILayout.PropertyField(wee);
+        }
 
         serializedObject.ApplyModifiedProperties();
     }

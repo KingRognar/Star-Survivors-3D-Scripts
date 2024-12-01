@@ -85,6 +85,9 @@ public class Boss_1_Scr : MonoBehaviour
     }
     private void Phase2Attack()
     {
+        if (bodyTransforms.cannon == null)
+            return;
+
         if (nextBflShoot <= Time.time)
         {
             vfxTransforms.bflShotVfx.gameObject.SetActive(true);
@@ -126,6 +129,7 @@ public class Boss_1_Scr : MonoBehaviour
     [Serializable] private class BodyTransforms
     {
         public Transform head;
+        public Transform cannon;
     }
     [Serializable] private class VFXTransforms
     {

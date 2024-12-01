@@ -40,7 +40,9 @@ public class Boss_1_Spread_Scr : MonoBehaviour, IDamageable
         curHealth -= damage;
 
         GetComponentInChildren<Enemy_Flash_Scr>().StartFlash();
-        DebriesMaker_Scr.instance.HitFromPosAndDir(transform.position, dmgTakenFromPos - transform.position);
+        Collider collider = GetComponent<Collider>();
+        Vector3 collisionPoint = collider.ClosestPoint(dmgTakenFromPos);
+        DebriesMaker_Scr.instance.HitFromPosAndDir(collisionPoint, dmgTakenFromPos - collisionPoint);
 
         if (curHealth <= 0)
             Explode();

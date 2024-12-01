@@ -37,7 +37,9 @@ public class Enemy_Scr : MonoBehaviour, IDamageable
         curHealth -= damage;
 
         GetComponent<Enemy_Flash_Scr>().StartFlash();
-        DebriesMaker_Scr.instance.HitFromPosAndDir(transform.position, dmgTakenFromPos - transform.position);
+        Collider collider = GetComponent<Collider>();
+        Vector3 collisionPoint = collider.ClosestPoint(dmgTakenFromPos);
+        DebriesMaker_Scr.instance.HitFromPosAndDir(collisionPoint, dmgTakenFromPos - collisionPoint); //TODO: надо использовать collider.ClosestPoint вместо transform.position;
         //GetComponent<Enemy_HitEffect_Scr>().SpawnParticles(dmgTakenFromPos);
         Pushback(damage);
 
@@ -47,7 +49,7 @@ public class Enemy_Scr : MonoBehaviour, IDamageable
     /// <summary>
     /// Метод, вызываемый при смерти врага
     /// </summary>
-    protected virtual void Die()
+    protected virtual void Die() //TODO: почему-то вызывается несколько раз когда попадает много снарядов
     {
         DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
         UpgradeSystem_Scr.instance.InstantiateExpShards(transform.position, expAward); //TODO: нужна ли анимация?

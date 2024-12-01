@@ -13,12 +13,10 @@ public class Enemy_Director_Scr : MonoBehaviour
     [SerializeField] private List<EnemyWave_SO> wavesSOs = new();
     static public Dictionary<int,int> enemyCountByID = new();
     //[SerializeField] private List<int> spawnedEnemiesByType = new List<int>();
-    private int currentWave = 0;
+    private int currentWave = -1;
     private float nextWaveIn = 0;
 
     private float upperPoint = 0; private float leftmostPoint = 0;
-
-    //TODO: прикрутить спавн сквадов
 
 
     private void Awake()
@@ -45,26 +43,28 @@ public class Enemy_Director_Scr : MonoBehaviour
                 return;
             }
 
-            if (Time.timeScale != 0)
+            while (Time.timeScale == 0 || Time.time <= nextWaveIn)
+                await Task.Yield();
+
+            if (currentWave >= 0)
             {
-                if (Time.time > nextWaveIn)
-                {
-                    Debug.Log("Started wave " + currentWave);
-
-                    foreach (EnemyInWave enemyInWave in wavesSOs[currentWave].enemiesInWave)
-                    {
-                        _ = SpawnEnemy(enemyInWave, wavesSOs[currentWave].waveDuration);
-                    }
-                    foreach (SquadInWave squadInWave in wavesSOs[currentWave].enemySquads)
-                    {
-                        _ = SpawnSquad(squadInWave.enemySquad, Time.time + squadInWave.startTime);
-                    }
-
-                    nextWaveIn += wavesSOs[currentWave].waveDuration;
-                    currentWave++;
-                }
+                Debug.Log("end of wave " + currentWave);
+                wavesSOs[currentWave].waveEndEvent.OnWaveEnd();
             }
-            await Task.Yield();
+
+            currentWave++;
+            nextWaveIn += wavesSOs[currentWave].waveDuration;
+
+            Debug.Log("Started wave " + currentWave);
+
+            foreach (EnemyInWave enemyInWave in wavesSOs[currentWave].enemiesInWave)
+            {
+                _ = SpawnEnemy(enemyInWave, wavesSOs[currentWave].waveDuration);
+            }
+            foreach (SquadInWave squadInWave in wavesSOs[currentWave].enemySquads)
+            {
+                _ = SpawnSquad(squadInWave.enemySquad, Time.time + squadInWave.startTime);
+            }
         }
     }
 
