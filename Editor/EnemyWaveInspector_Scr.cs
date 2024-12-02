@@ -74,8 +74,7 @@ public class EnemyWaveInspector_Scr : Editor
             switch (wee.objectReferenceValue.GetType().ToString())
             {
                 case "MoveBackground_WEE_SO":
-
-                    SerializedObject serObj = new SerializedObject(wee.objectReferenceValue);
+                    SerializedObject serObj = new(wee.objectReferenceValue);
                     EditorGUILayout.PropertyField(wee);
                     EditorGUILayout.PropertyField(serObj.FindProperty("newHeight"));
                     serObj.ApplyModifiedProperties();

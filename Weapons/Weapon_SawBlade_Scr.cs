@@ -6,6 +6,7 @@ public class Weapon_SawBlade_Scr : Weapon_BaseProjectile_Scr
     private int collisionsLeft;
 
     //TODO: Придумать как нормально отскакивать от границ экрана
+    //TODO: Придумать как нормально отскакивать...
 
     private void Start()
     {
@@ -15,17 +16,20 @@ public class Weapon_SawBlade_Scr : Weapon_BaseProjectile_Scr
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.gameObject.CompareTag("Enemy") && !other.gameObject.CompareTag("Border"))
-            return;
-
-        if (other.gameObject.CompareTag("Enemy"))
+        switch (other.gameObject.tag)
         {
-            other.GetComponent<IDamageable>().TakeDamage(Player_Stats_Scr.Grinder.damage, transform.position);
-            bounceRandom(other.transform.position);
-        }
-        if (other.gameObject.CompareTag("Border"))
-        {
-            bounceRandom(transform.position + other.transform.position.normalized);
+            case "Enemy":
+                other.GetComponent<IDamageable>().TakeDamage(Player_Stats_Scr.Grinder.damage, transform.position);
+                BounceRandom(other.transform.position);
+                return;
+            case "Obstacle":
+            case "Border":
+                Vector3 collisionPoint = other.ClosestPoint(transform.position);
+                DebriesMaker_Scr.instance.HitFromPosAndDir(collisionPoint, transform.position - collisionPoint);
+                BounceRandom(other.transform.position);
+                return;
+            default:
+                return;
         }
 
         //Sound_FXManager_Scr.instance.PlayRandomFXClip(hitAudioClips, transform, 1); //TODO: Add FXManager
@@ -37,7 +41,7 @@ public class Weapon_SawBlade_Scr : Weapon_BaseProjectile_Scr
         //transform.Rotate(transform.up, 180 * Time.deltaTime, Space.Self); //TODO: сделать из этого апгрейд
         base.ProjectileMovement();
     }
-    private void bounceRandom(Vector3 otherObjPosition)
+    private void BounceRandom(Vector3 otherObjPosition) 
     {
         collisionsLeft--;
         if (collisionsLeft < 0)

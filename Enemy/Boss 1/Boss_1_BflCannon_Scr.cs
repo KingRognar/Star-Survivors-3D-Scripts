@@ -18,7 +18,6 @@ public class Boss_1_BflCannon_Scr : MonoBehaviour, IDamageable
         Enemy_Flash_Scr[] flashes = GetComponentsInChildren<Enemy_Flash_Scr>();
         foreach (Enemy_Flash_Scr flash in flashes)
             flash.StartFlash();
-        DebriesMaker_Scr.instance.HitFromPosAndDir(transform.position, dmgTakenFromPos - transform.position); //TODO: исправить
         //GetComponent<Enemy_HitEffect_Scr>().SpawnParticles(dmgTakenFromPos);
         uiBossHp.UpdateHPBar(curHp, maxHp);
 

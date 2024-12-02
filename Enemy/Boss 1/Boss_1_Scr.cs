@@ -11,6 +11,7 @@ public class Boss_1_Scr : MonoBehaviour
     private bool headIsTurnedBack = false;
     private bool movedToNewPos = false; private float moveT = 0; private Vector3 phase1Pos; [SerializeField] private Vector3 phase2Pos;
     private float bflShootInterval = 10f; private float nextBflShoot = -1; private float bflShootTime;
+    private float headTurningSpeed = 25f;
     // start pos 0, -17.5, 9
 
     //TODO: BFL 
@@ -73,7 +74,7 @@ public class Boss_1_Scr : MonoBehaviour
         Vector3 adjustedPlayerPos = Player_Stats_Scr.instance.transform.position - bodyTransforms.head.position; //TODO: handle destroyed player
         adjustedPlayerPos.y = 0;
         adjustedPlayerPos = Vector3.Cross(Vector3.up, adjustedPlayerPos);
-        bodyTransforms.head.rotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(adjustedPlayerPos, Vector3.up), 25 * Time.deltaTime);
+        bodyTransforms.head.rotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(adjustedPlayerPos, Vector3.up), headTurningSpeed * Time.deltaTime);
         //bodyTransforms.head.rotation = Quaternion.LookRotation(adjustedPlayerPos, Vector3.up);
     }
     private void MoveToNewPos()
@@ -91,11 +92,13 @@ public class Boss_1_Scr : MonoBehaviour
         if (nextBflShoot <= Time.time)
         {
             vfxTransforms.bflShotVfx.gameObject.SetActive(true);
+            headTurningSpeed = 15f;
             nextBflShoot += bflShootInterval;
         }
         if (nextBflShoot - bflShootInterval + bflShootTime < Time.time)
         {
             vfxTransforms.bflShotVfx.gameObject.SetActive(false);
+            headTurningSpeed = 25f;
         }
     }
 
