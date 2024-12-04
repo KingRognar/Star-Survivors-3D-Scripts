@@ -93,6 +93,11 @@ public class Player_Stats_Scr : MonoBehaviour
         public static float projectileScale = 1f;
         public static int projectileCount = 1;
     }
+    public static class LazerDrones
+    {
+        public static int damage = 1;
+        public static float timeBetweenTicks = 0.5f;
+    }
 }
 
 

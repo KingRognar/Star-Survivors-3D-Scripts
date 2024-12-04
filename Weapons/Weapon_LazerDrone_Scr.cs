@@ -11,23 +11,19 @@ public class Weapon_LazerDrone_Scr : MonoBehaviour
     private float lastEnemySearchTime = 0f; private float searchDelay = 2f;
     private Transform targetTransform;
     [SerializeField] private LayerMask targetLayer;
-    [SerializeField] private float lazerLifetime = 4f, shotDelay = 2f; private float nextShotToggle = 0f, shotStartTime; private bool isShooting = false;
+    [SerializeField] private float lazerLifetime = 4f, shotDelay = 2f; private float nextShotToggle = 0f; private bool isShooting = false;
     [SerializeField] private float trackingSpeed = 100f;
-    [SerializeField] private AnimationCurve lazerLengthCurve, lazerScaleCurve;
-    private CapsuleCollider capsuleCollider;
-    private float size;
+    private GameObject ObjectWithCollider;
 
-    //TODO: deal damage
     //TODO: separate left and right targets
     //TODO: make Weapon_LazerDrones_Scr
 
     private void Awake()
     {
         modelTransform = transform.GetChild(0);
-        capsuleCollider = GetComponentInChildren<CapsuleCollider>();
-        size = GetComponentInChildren<VisualEffect>().GetFloat("Size");
+        ObjectWithCollider = GetComponentInChildren<CapsuleCollider>().gameObject;
         lazerLifetime = GetComponentInChildren<VisualEffect>().GetFloat("Lifetime");
-        capsuleCollider.gameObject.SetActive(false);
+        ObjectWithCollider.SetActive(false);
     }
 
     void Update()
@@ -69,9 +65,6 @@ public class Weapon_LazerDrone_Scr : MonoBehaviour
     }
     private void ShootLazer()
     {
-        if (isShooting)
-            UpdateCollider();
-
         if (nextShotToggle >= Time.time)
             return;
 
@@ -79,30 +72,22 @@ public class Weapon_LazerDrone_Scr : MonoBehaviour
         {
             nextShotToggle += shotDelay;
             isShooting = false;
-            capsuleCollider.gameObject.SetActive(isShooting);
+            ObjectWithCollider.SetActive(isShooting);
             modelRotationSpeed = 25f;
         }
         else
         {
-            shotStartTime = nextShotToggle;
             nextShotToggle += lazerLifetime;
             isShooting = true;
-            capsuleCollider.gameObject.SetActive(isShooting);
+            ObjectWithCollider.SetActive(isShooting);
             modelRotationSpeed = 75f;
         }
     }
-    private void UpdateCollider()
-    {
-        float t = (Time.time - shotStartTime) / lazerLifetime;
-        capsuleCollider.radius = size * lazerScaleCurve.Evaluate(t);
-        capsuleCollider.height = size * 17 * lazerLengthCurve.Evaluate(t);
-        capsuleCollider.center = new Vector3(0, 0, capsuleCollider.height / 2);
-    }
-    private void SearchEnemy()
+    private void SearchEnemy() //TODO: работает хреново
     {
         Collider[] firstCollider = new Collider[1];
         float curRadius = 0;
-        while (targetTransform == null && curRadius <= 40)
+        while (targetTransform == null && curRadius <= 30)
         {
             curRadius += 5;
             if (Physics.OverlapSphereNonAlloc(transform.position, curRadius, firstCollider, targetLayer, QueryTriggerInteraction.Collide) == 0)
