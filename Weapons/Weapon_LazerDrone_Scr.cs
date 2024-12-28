@@ -8,11 +8,11 @@ public class Weapon_LazerDrone_Scr : MonoBehaviour
     private float distanceToMaintain = 1.5f;
     private float modelRotationSpeed = 25f;
     private Transform modelTransform;
-    private float lastEnemySearchTime = 0f; private float searchDelay = 2f;
+    private float lastEnemySearchTime = 0f; private float searchDelay = 0.3f;
     private Transform targetTransform;
     [SerializeField] private LayerMask targetLayer;
     [SerializeField] private float lazerLifetime = 4f, shotDelay = 2f; private float nextShotToggle = 0f; private bool isShooting = false;
-    [SerializeField] private float trackingSpeed = 100f;
+    [SerializeField] private float trackingSpeed = 120f;
     private GameObject ObjectWithCollider;
 
     //TODO: separate left and right targets
@@ -25,7 +25,6 @@ public class Weapon_LazerDrone_Scr : MonoBehaviour
         lazerLifetime = GetComponentInChildren<VisualEffect>().GetFloat("Lifetime");
         ObjectWithCollider.SetActive(false);
     }
-
     void Update()
     {
         DroneBehaviour();
@@ -57,9 +56,15 @@ public class Weapon_LazerDrone_Scr : MonoBehaviour
     {
         Vector3 targetPosition;
         if (targetTransform == null)
+        { 
             targetPosition = new Vector3(0, 0, 5f);
+            //transform.GizmoPointer(transform.position + targetPosition);
+        }
         else
+        {
             targetPosition = targetTransform.position - transform.position;
+            //transform.GizmoPointer(targetTransform.position);
+        }
 
         transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetPosition, Vector3.up), trackingSpeed * Time.deltaTime);
     }
@@ -73,23 +78,24 @@ public class Weapon_LazerDrone_Scr : MonoBehaviour
             nextShotToggle += shotDelay;
             isShooting = false;
             ObjectWithCollider.SetActive(isShooting);
-            modelRotationSpeed = 25f;
+            modelRotationSpeed = 75f;
         }
         else
         {
             nextShotToggle += lazerLifetime;
             isShooting = true;
             ObjectWithCollider.SetActive(isShooting);
-            modelRotationSpeed = 75f;
+            modelRotationSpeed = 250f;
         }
     }
-    private void SearchEnemy() //TODO: работает хреново
+    private void SearchEnemy()
     {
         Collider[] firstCollider = new Collider[1];
         float curRadius = 0;
-        while (targetTransform == null && curRadius <= 30)
+        targetTransform = null;
+        while (targetTransform == null && curRadius <= 24)
         {
-            curRadius += 5;
+            curRadius += 3f;
             if (Physics.OverlapSphereNonAlloc(transform.position, curRadius, firstCollider, targetLayer, QueryTriggerInteraction.Collide) == 0)
                 continue;
             targetTransform = firstCollider[0].transform;

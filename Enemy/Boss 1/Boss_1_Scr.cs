@@ -26,6 +26,8 @@ public class Boss_1_Scr : MonoBehaviour
 
     //TODO: прибраться
 
+    //TODO: передвигать на нужную позицию на старте, а затем вместе с WEE приближаться к ГГ
+
     private void Start()
     {
         bodyTransforms.head.rotation = Quaternion.Euler(0, 90, 0);

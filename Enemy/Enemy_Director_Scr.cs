@@ -48,14 +48,14 @@ public class Enemy_Director_Scr : MonoBehaviour
 
             if (currentWave >= 0)
             {
-                Debug.Log("end of wave " + currentWave);
-                wavesSOs[currentWave].waveEndEvent.OnWaveEnd();
+                Debug.Log("end of wave " + (currentWave + 1));
+                wavesSOs[currentWave].waveEndEvent.OnWaveEnd(); //TODO: пускать, только если он есть
             }
 
             currentWave++;
             nextWaveIn += wavesSOs[currentWave].waveDuration;
 
-            Debug.Log("Started wave " + currentWave);
+            Debug.Log("Started wave " + (currentWave + 1));
 
             foreach (EnemyInWave enemyInWave in wavesSOs[currentWave].enemiesInWave)
             {
@@ -70,7 +70,16 @@ public class Enemy_Director_Scr : MonoBehaviour
 
     private async Task SpawnEnemy(EnemyInWave enemyInWave, float waveDuration) //TODO: refactor
     {
-        int enemyID = enemyInWave.enemyPrefab.GetComponent<Enemy_Scr>().EnemyId;
+        Enemy_Scr enemyScr;
+        int enemyID;
+        if (enemyInWave.enemyPrefab.TryGetComponent<Enemy_Scr>(out enemyScr))
+        {
+            enemyID = enemyScr.EnemyId;
+        }
+        else
+        {
+            enemyID = -1; //TODO: не проебусь ли я с этим?
+        }
         float endTime = Time.time + waveDuration;
         float nextSpawnTime = Time.time;
         while (Time.time < endTime)

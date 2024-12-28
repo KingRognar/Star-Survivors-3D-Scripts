@@ -44,4 +44,17 @@ public static class ExtensionMethods_Scr
         return camera.ScreenToWorldPoint(new Vector3(0, 0, camera.transform.position.y));
     }
     #endregion
+
+    public static void GizmoPointer(this Transform transform, Vector3 position)
+    {
+        Debug.DrawLine(position, position + Vector3.right, Color.red);
+        Debug.DrawLine(position, position + Vector3.up, Color.green);
+        Debug.DrawLine(position, position + Vector3.forward, Color.blue);
+    }
+    public static void GizmoPointer(this Transform transform, Vector3 position, float duration)
+    {
+        Debug.DrawLine(position, position + Vector3.right, Color.red, duration);
+        Debug.DrawLine(position, position + Vector3.up, Color.green, duration);
+        Debug.DrawLine(position, position + Vector3.forward, Color.blue, duration);
+    }
 }
