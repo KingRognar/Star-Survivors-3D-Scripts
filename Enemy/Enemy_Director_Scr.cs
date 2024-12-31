@@ -49,7 +49,8 @@ public class Enemy_Director_Scr : MonoBehaviour
             if (currentWave >= 0)
             {
                 Debug.Log("end of wave " + (currentWave + 1));
-                wavesSOs[currentWave].waveEndEvent.OnWaveEnd(); //TODO: пускать, только если он есть
+                if (wavesSOs[currentWave].waveEndEvent != null)
+                    wavesSOs[currentWave].waveEndEvent.OnWaveEnd();
             }
 
             currentWave++;
@@ -148,6 +149,16 @@ public class Enemy_Director_Scr : MonoBehaviour
                     SpawnOnUpperCorner(enemyPrefab, true);
                     break;
                 }
+            case EnemyWave.SpawnMethod.simple:
+                {
+                    SpawnSimple(enemyPrefab);
+                    break;
+                }
+            case EnemyWave.SpawnMethod.position: 
+                {
+                    SpawnOnPosition(enemyPrefab, new Vector3(0, 0, 0)); //TODO: как лучше брать эту позицию?
+                    break;
+                }
         }
     }
     /// <summary>
@@ -155,6 +166,14 @@ public class Enemy_Director_Scr : MonoBehaviour
     /// </summary>
     /// <param name="enemyPrefab">Префаб врага</param>
     /// <returns>Объект заспавненного врага</returns>
+    private GameObject SpawnSimple(GameObject enemyPrefab)
+    {
+        return Instantiate(enemyPrefab);
+    }
+    private GameObject SpawnOnPosition(GameObject enemyPrefab, Vector3 pos)
+    {
+        return Instantiate(enemyPrefab, pos, Quaternion.identity);
+    }
     private GameObject SpawnRandomOnLane(GameObject enemyPrefab)
     {
         //return Instantiate(enemyPrefab, new Vector3(Random.Range(leftmostPoint, rightmostPoint), upperPoint, 0), Quaternion.identity);

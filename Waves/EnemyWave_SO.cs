@@ -42,8 +42,10 @@ namespace EnemyWave
     }
     public enum SpawnMethod
     {
+        simple,
         OnLine,
-        Corners
+        Corners,
+        position
     }
 }
 

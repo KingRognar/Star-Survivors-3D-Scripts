@@ -30,7 +30,9 @@ public class Boss_1_Scr : MonoBehaviour
 
     private void Start()
     {
+        //transform.position = new(0, -17.5f, 9);
         bodyTransforms.head.rotation = Quaternion.Euler(0, 90, 0);
+        BackgroundManager_Scr.AddToSpawnedElements(gameObject);
     }
     private void Update()
     {

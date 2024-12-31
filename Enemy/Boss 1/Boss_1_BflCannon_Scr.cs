@@ -19,13 +19,12 @@ public class Boss_1_BflCannon_Scr : MonoBehaviour, IDamageable
         foreach (Enemy_Flash_Scr flash in flashes)
             flash.StartFlash();
         //GetComponent<Enemy_HitEffect_Scr>().SpawnParticles(dmgTakenFromPos);
-        uiBossHp.UpdateHPBar(curHp, maxHp);
+        uiBossHp.UpdateHPBar(curHp, maxHp);     //TODO: instantiate HP bar by yourself
 
         if (curHp <= 0)
             Explode();
     }
 
-    //TODO: instantiate HP bar by yourself
     //TODO: включать коллайдеры только с началом 2 фазы (когда пушка выдвинется)
 
     private void Explode()

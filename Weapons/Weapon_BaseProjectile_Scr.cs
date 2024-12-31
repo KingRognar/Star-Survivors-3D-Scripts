@@ -18,8 +18,8 @@ public class Weapon_BaseProjectile_Scr : MonoBehaviour
         transform.position += transform.forward * Time.deltaTime * projectileSpeed;
     }
 
-    private void OnBecameInvisible()
+/*    private void OnBecameInvisible()
     {
         Destroy(gameObject);
-    }
+    }*/
 }

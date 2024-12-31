@@ -11,12 +11,13 @@ public class Weapon_Machinegun : Weapon_Scr
     private float nextBulletSpawnTime = -1f;
 
 
-    void Update()
+    void Update() //TODO: выделить ускорение при попадании в отдельное улучшение
     {
         if (Input.GetKey(KeyCode.Mouse0) && (nextBulletSpawnTime < Time.time))
         {
             InstantiateNewBullet();
-            nextBulletSpawnTime = Time.time + Player_Stats_Scr.Machinegun.spawnDelay;
+            nextBulletSpawnTime = Time.time + Player_Stats_Scr.Machinegun.spawnDelay*Player_Stats_Scr.Machinegun.spawnDelayMod;
+            Debug.Log(Player_Stats_Scr.Machinegun.spawnDelay * Player_Stats_Scr.Machinegun.spawnDelayMod);
         }
     }
 

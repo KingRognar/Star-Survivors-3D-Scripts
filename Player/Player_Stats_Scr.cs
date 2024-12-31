@@ -55,6 +55,7 @@ public class Player_Stats_Scr : MonoBehaviour
     public static class Machinegun
     {
         public static float spawnDelay = 0.5f;
+        public static float spawnDelayMod = 1f;
         public static float spreadAngle = 5f;
         public static int damage = 5;
         public static float projectileScale = 1f;
