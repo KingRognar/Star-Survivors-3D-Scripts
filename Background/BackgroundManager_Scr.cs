@@ -17,6 +17,8 @@ public class BackgroundManager_Scr : MonoBehaviour
 
     public float backgroundSpeed = 45f;
 
+    //TODO: set spawn delay relative to background speed
+
     private void Awake()
     {
         if (instance == null)
@@ -53,7 +55,7 @@ public class BackgroundManager_Scr : MonoBehaviour
         oldSpawnPosition = spawnPosition;
         newSpawnPosition = spawnPosition;
         newSpawnPosition.y = newHeight;
-        DOTween.To(() => t, x => t = x, 1f, 3f);
+        DOTween.To(() => t, x => t = x, 1f, 6f);
     }
     private void MoveToNewHeight()
     {

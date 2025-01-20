@@ -9,6 +9,7 @@ public class Boss_1_Spread_Scr : MonoBehaviour, IDamageable
     [SerializeField] private float shotInterval; private float nextShotTime = 2f;
     [SerializeField] private GameObject bulletPrefab;
     [SerializeField] private Transform[] nosels;
+    [HideInInspector] public bool isShooting = false;
 
     private void Start()
     {
@@ -22,7 +23,7 @@ public class Boss_1_Spread_Scr : MonoBehaviour, IDamageable
 
     private void Attack()
     {
-        if (nextShotTime > Time.time)
+        if (nextShotTime > Time.time || !isShooting)
             return;
 
         nextShotTime += shotInterval;
@@ -51,7 +52,7 @@ public class Boss_1_Spread_Scr : MonoBehaviour, IDamageable
     {
         DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
         smokeVfxObj.SetActive(true);
-        transform.parent.parent.parent.GetComponent<Boss_1_Scr>().TurretIsDestriyed(turretID);
+        transform.parent.parent.parent.GetComponent<Boss_1_Scr>().TurretIsDestroyed(turretID);
         Destroy(gameObject);
     }
 

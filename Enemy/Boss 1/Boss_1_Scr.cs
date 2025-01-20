@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.VFX;
 
@@ -9,6 +11,7 @@ public class Boss_1_Scr : MonoBehaviour
     [SerializeField] private VFXTransforms vfxTransforms;
     private bool[] turretsDestroyed = new bool[3] { false, false, false };
     private bool headIsTurnedBack = false;
+    private bool movedAtAppearence = false; private Vector3 startPos, endPos;
     private bool movedToNewPos = false; private float moveT = 0; private Vector3 phase1Pos; [SerializeField] private Vector3 phase2Pos;
     private float bflShootInterval = 10f; private float nextBflShoot = -1; private float bflShootTime;
     private float headTurningSpeed = 25f;
@@ -26,18 +29,27 @@ public class Boss_1_Scr : MonoBehaviour
 
     //TODO: прибраться
 
-    //TODO: передвигать на нужную позицию на старте, а затем вместе с WEE приближаться к ГГ
+    //TODO: постепенно замедлить БГ до 18 (багает чёт)
+    //TODO: включать пушки только после передвижения при появлении
+    //TODO: структурировать переменные, мб namespaces?
+
+
 
     private void Start()
     {
         //transform.position = new(0, -17.5f, 9);
+        transform.position = new(0, -100, 90);
         bodyTransforms.head.rotation = Quaternion.Euler(0, 90, 0);
         BackgroundManager_Scr.AddToSpawnedElements(gameObject);
     }
     private void Update()
     {
         if (phase != Phase.phase_2)
+        {
+            if (!movedAtAppearence) MoveAtAppearence();
             return;
+        }
+
 
         Phase2Behaviour();
 
@@ -45,6 +57,28 @@ public class Boss_1_Scr : MonoBehaviour
             vfxTransforms.bflShotVfx.gameObject.SetActive(!vfxTransforms.bflShotVfx.gameObject.activeInHierarchy);
     }
 
+
+    private void MoveAtAppearence()
+    {
+        DOTween.To(() => moveT, x => moveT = x, 1f, 6f);
+        startPos = transform.position;
+        endPos = new(0, -17.5f, 9);
+        _ = MoveTask();
+        movedAtAppearence = true;
+    }
+    private async Task MoveTask()
+    {
+        while (moveT != 1 && !destroyCancellationToken.IsCancellationRequested)
+        {
+            transform.position = Vector3.Lerp(startPos, endPos, moveT);
+            BackgroundManager_Scr.instance.backgroundSpeed = Mathf.Lerp(45, 18, moveT);
+            await Task.Yield();
+        }
+        moveT = 0;
+        bodyTransforms.leftTurret.GetComponent<Boss_1_Turret_Scr>().isShooting = true;
+        bodyTransforms.rightTurret.GetComponent<Boss_1_Turret_Scr>().isShooting = true;
+        bodyTransforms.middleTurret.GetComponent<Boss_1_Spread_Scr>().isShooting = true;
+    }
 
     private void Phase2Behaviour()
     {
@@ -106,7 +140,7 @@ public class Boss_1_Scr : MonoBehaviour
         }
     }
 
-    public void TurretIsDestriyed(int turretID)
+    public void TurretIsDestroyed(int turretID)
     {
         turretsDestroyed[turretID] = true;
         CheckTurretsState();
@@ -137,6 +171,9 @@ public class Boss_1_Scr : MonoBehaviour
     {
         public Transform head;
         public Transform cannon;
+        public Transform leftTurret;
+        public Transform rightTurret;
+        public Transform middleTurret;
     }
     [Serializable] private class VFXTransforms
     {

@@ -10,6 +10,7 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
     private float nextBurstTime = 2f; private float timeBtwenBursts = 1f; private int bulletsInBurst = 8; private int currentBurstCount = 0;
     [SerializeField] private GameObject bulletPrefab;
     private Transform nosel;
+    [HideInInspector] public bool isShooting = false;
 
     private void Start()
     {
@@ -30,7 +31,7 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
     }
     private void Attack()
     {
-        if (nextBurstTime > Time.time)
+        if (nextBurstTime > Time.time || !isShooting)
             return;
 
         if (nextShotTime > Time.time)
@@ -63,7 +64,7 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
     {
         DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
         smokeVfxObj.SetActive(true);
-        transform.parent.parent.parent.GetComponent<Boss_1_Scr>().TurretIsDestriyed(turretID);
+        transform.parent.parent.parent.GetComponent<Boss_1_Scr>().TurretIsDestroyed(turretID);
         Destroy(gameObject);
     }
 
