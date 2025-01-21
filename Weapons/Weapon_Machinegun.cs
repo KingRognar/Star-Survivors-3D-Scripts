@@ -17,7 +17,7 @@ public class Weapon_Machinegun : Weapon_Scr
         {
             InstantiateNewBullet();
             nextBulletSpawnTime = Time.time + Player_Stats_Scr.Machinegun.spawnDelay*Player_Stats_Scr.Machinegun.spawnDelayMod;
-            Debug.Log(Player_Stats_Scr.Machinegun.spawnDelay * Player_Stats_Scr.Machinegun.spawnDelayMod);
+            //Debug.Log(Player_Stats_Scr.Machinegun.spawnDelay * Player_Stats_Scr.Machinegun.spawnDelayMod);
         }
     }
 

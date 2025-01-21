@@ -1,13 +1,18 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Boss_1_BflCannon_Scr : MonoBehaviour, IDamageable
 {
     private int curHp; [SerializeField] private int maxHp = 1000;
-    [SerializeField] private UI_BossHP_Bar_Scr uiBossHp;
+    private UI_BossHP_Bar_Scr uiBossHp;
+    [SerializeField] private GameObject uiBossHp_prefab;
+    [SerializeField] private GameObject destroyedBflPref;
 
 
     public void Start()
     {
+        Transform canvasTransform = GameObject.Find("Canvas").transform;
+        uiBossHp = Instantiate(uiBossHp_prefab, canvasTransform).GetComponent<UI_BossHP_Bar_Scr>();
         curHp = maxHp;
     }
 
@@ -29,6 +34,9 @@ public class Boss_1_BflCannon_Scr : MonoBehaviour, IDamageable
 
     private void Explode()
     {
+        GameObject destroy = Instantiate(destroyedBflPref, transform.parent);
+        destroy.transform.localPosition = new(-0.38f, -18.33f, 1.62f);
+        destroy.transform.localRotation = Quaternion.Euler(0, 180, 0);
         Destroy(gameObject);
     }
 }

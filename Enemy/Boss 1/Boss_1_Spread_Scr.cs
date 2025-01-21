@@ -23,10 +23,12 @@ public class Boss_1_Spread_Scr : MonoBehaviour, IDamageable
 
     private void Attack()
     {
-        if (nextShotTime > Time.time || !isShooting)
+        if (nextShotTime > Time.time)
+            return;
+        nextShotTime += shotInterval;
+        if (!isShooting)
             return;
 
-        nextShotTime += shotInterval;
         foreach (Transform nosel in nosels)
         {
             Instantiate(bulletPrefab, nosel.position, nosel.rotation);

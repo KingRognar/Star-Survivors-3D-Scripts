@@ -31,13 +31,14 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
     }
     private void Attack()
     {
-        if (nextBurstTime > Time.time || !isShooting)
+        if (nextBurstTime > Time.time)
             return;
-
         if (nextShotTime > Time.time)
             return;
-
         nextShotTime = Time.time + shotInterval;
+        if (!isShooting)
+            return;
+
         currentBurstCount++;
         Instantiate(bulletPrefab, nosel.position, nosel.rotation);
 
