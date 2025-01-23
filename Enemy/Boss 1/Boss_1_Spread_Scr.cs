@@ -11,6 +11,8 @@ public class Boss_1_Spread_Scr : MonoBehaviour, IDamageable
     [SerializeField] private Transform[] nosels;
     [HideInInspector] public bool isShooting = false;
 
+    //TODO: иногда почему-то не стреляет
+
     private void Start()
     {
         Initialize();

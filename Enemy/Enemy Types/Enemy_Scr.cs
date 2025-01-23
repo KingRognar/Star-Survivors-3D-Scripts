@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Enemy_Flash_Scr))]
-[RequireComponent(typeof(Enemy_HitEffect_Scr))]
 [RequireComponent(typeof(Rigidbody))]
 public class Enemy_Scr : MonoBehaviour, IDamageable
 {

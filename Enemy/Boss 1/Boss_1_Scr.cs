@@ -9,30 +9,27 @@ public class Boss_1_Scr : MonoBehaviour
     private Phase phase = Phase.phase_1;
     [SerializeField] private BodyTransforms bodyTransforms;
     [SerializeField] private VFXTransforms vfxTransforms;
+
+    #region Phase 1 Variables
     private bool[] turretsDestroyed = new bool[3] { false, false, false };
-    private bool headIsTurnedBack = false;
     private bool movedAtAppearence = false; private Vector3 startPos, endPos;
+    #endregion
+    #region Phase 2 variables
+    private bool headIsTurnedBack = false;
     private bool movedToNewPos = false; private float moveT = 0; private Vector3 phase1Pos; [SerializeField] private Vector3 phase2Pos;
     private float bflShootInterval = 10f; private float nextBflShoot = -1; private float bflShootTime;
     private float headTurningSpeed = 25f;
+    [SerializeField] private Boss_1_RocketLauncher_Scr leftRocketLauncher;
+    #endregion
+
     // start pos 0, -17.5, 9
-
     //TODO: BFL 
-
     //TODO: Animations
-
     //TODO: Visualize damage delt
-
     //TODO: Rocket launchers
-
     //TODO: Boss HP Bar(s)
-
     //TODO: прибраться
-
     //TODO: постепенно замедлить БГ до 18 (багает чёт)
-    //TODO: включать пушки только после передвижения при появлении
-    //TODO: структурировать переменные, мб namespaces?
-
 
 
     private void Start()
@@ -103,6 +100,7 @@ public class Boss_1_Scr : MonoBehaviour
         {
             GetComponent<Animator>().SetBool("BFL is extending", true);
             headIsTurnedBack = true;
+            leftRocketLauncher.StartBarrage(3);
             return;
         }
         bodyTransforms.head.rotation = newRotation;
@@ -120,7 +118,11 @@ public class Boss_1_Scr : MonoBehaviour
         transform.position = Vector3.Lerp(phase1Pos, phase2Pos, moveT);
         moveT = Mathf.MoveTowards(moveT, 1, Time.deltaTime * 0.1f);
         if (moveT == 1)
+        {
             movedToNewPos = true;
+            nextBflShoot = Time.time;
+        }
+
     }
     private void Phase2Attack()
     {

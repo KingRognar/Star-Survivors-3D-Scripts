@@ -18,6 +18,7 @@ public class Enemy_Director_Scr : MonoBehaviour
 
     private float upperPoint = 0; private float leftmostPoint = 0;
 
+    //TODO: мб перелопатить всё и сделать на gameobjects? типа каждую волну спавнится свой объект-спавнер
 
     private void Awake()
     {
