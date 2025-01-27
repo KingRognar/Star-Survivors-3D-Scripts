@@ -47,7 +47,7 @@ public class BackgroundManager_Scr : MonoBehaviour
 
         int rnd = Random.Range(0, backgroundElementPrefabs.Count);
         Instantiate(backgroundElementPrefabs[rnd], spawnPosition, Quaternion.identity); //TODO: определять z динамически
-        lastSpawnTime = Time.time + timeBetweenSpawns;
+        lastSpawnTime = Time.time + (timeBetweenSpawns * 45 / backgroundSpeed);
     }
     public void SetNewHeight(float newHeight)
     {

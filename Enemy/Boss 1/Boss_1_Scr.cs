@@ -72,10 +72,17 @@ public class Boss_1_Scr : MonoBehaviour
             await Task.Yield();
         }
         moveT = 0;
-        bodyTransforms.leftTurret.GetComponent<Boss_1_Turret_Scr>().isShooting = true;
-        bodyTransforms.rightTurret.GetComponent<Boss_1_Turret_Scr>().isShooting = true;
-        bodyTransforms.middleTurret.GetComponent<Boss_1_Spread_Scr>().isShooting = true;
+        TurretsStartAttack(); 
     }
+    public void TurretsStartAttack()
+    {
+        if (bodyTransforms.leftTurret != null)
+            bodyTransforms.leftTurret.GetComponent<Boss_1_Turret_Scr>().isShooting = true;
+        if (bodyTransforms.rightTurret != null)
+            bodyTransforms.rightTurret.GetComponent<Boss_1_Turret_Scr>().isShooting = true;
+        if (bodyTransforms.middleTurret != null)
+            bodyTransforms.middleTurret.GetComponent<Boss_1_Spread_Scr>().isShooting = true;
+    }    
 
     private void Phase2Behaviour()
     {
@@ -93,7 +100,7 @@ public class Boss_1_Scr : MonoBehaviour
         BFLPlayerTracking();
 
     }
-    private void BFLTurnBack()
+    private void BFLTurnBack() //TODO: переделать, шл€па кака€-то
     {
         Quaternion newRotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(Vector3.left, Vector3.up), 25 * Time.deltaTime);
         if (bodyTransforms.head.rotation == newRotation)

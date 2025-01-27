@@ -33,6 +33,9 @@ public class Enemy_Scr : MonoBehaviour, IDamageable
     /// <param name="dmgTakenFromPos">Позиция с которой был нанесён урон</param>
     public void TakeDamage(int damage, Vector3 dmgTakenFromPos)
     {
+        if (curHealth < 0)
+            return;
+
         curHealth -= damage;
 
         GetComponent<Enemy_Flash_Scr>().StartFlash();
@@ -40,10 +43,11 @@ public class Enemy_Scr : MonoBehaviour, IDamageable
         Vector3 collisionPoint = collider.ClosestPoint(dmgTakenFromPos);
         DebriesMaker_Scr.instance.HitFromPosAndDir(collisionPoint, dmgTakenFromPos - collisionPoint); //TODO: надо использовать collider.ClosestPoint вместо transform.position;
         //GetComponent<Enemy_HitEffect_Scr>().SpawnParticles(dmgTakenFromPos);
-        Pushback(damage);
 
         if (curHealth <= 0)
             Die();
+        else
+            Pushback(damage);
     }
     /// <summary>
     /// Метод, вызываемый при смерти врага
