@@ -30,6 +30,7 @@ public class Boss_1_Scr : MonoBehaviour
     //TODO: Boss HP Bar(s)
     //TODO: прибратьс€
     //TODO: постепенно замедлить Ѕ√ до 18 (багает чЄт)
+    //TODO: переделать на tween'ы - 100%
 
 
     private void Start()
@@ -88,29 +89,17 @@ public class Boss_1_Scr : MonoBehaviour
     {
         if (!movedToNewPos)
             MoveToNewPos();
-        else
-            Phase2Attack();
+
 
         if (!headIsTurnedBack)
         {
-            BFLTurnBack();
             return;
         }
+        else
+            Phase2Attack();
 
         BFLPlayerTracking();
 
-    }
-    private void BFLTurnBack() //TODO: переделать, шл€па кака€-то
-    {
-        Quaternion newRotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(Vector3.left, Vector3.up), 25 * Time.deltaTime);
-        if (bodyTransforms.head.rotation == newRotation)
-        {
-            GetComponent<Animator>().SetBool("BFL is extending", true);
-            headIsTurnedBack = true;
-            leftRocketLauncher.StartBarrage(3);
-            return;
-        }
-        bodyTransforms.head.rotation = newRotation;
     }
     private void BFLPlayerTracking()
     {
@@ -129,7 +118,6 @@ public class Boss_1_Scr : MonoBehaviour
             movedToNewPos = true;
             nextBflShoot = Time.time;
         }
-
     }
     private void Phase2Attack()
     {
@@ -168,7 +156,14 @@ public class Boss_1_Scr : MonoBehaviour
         phase = Phase.phase_2;
         phase1Pos = transform.position;
         bflShootTime = vfxTransforms.bflShotVfx.GetComponent<VisualEffect>().GetFloat("Time");
-        nextBflShoot = Time.time + bflShootInterval;
+        bodyTransforms.head.DORotate(Quaternion.LookRotation(Vector3.left, Vector3.up).eulerAngles, 6f).SetEase(Ease.InQuad).onComplete = OnHeadTurnbackComplete;
+        moveT = 0;
+    }
+    void OnHeadTurnbackComplete()
+    {
+        GetComponent<Animator>().SetBool("BFL is extending", true);
+        headIsTurnedBack = true;
+        leftRocketLauncher.StartBarrage(3);
     }
 
     private enum Phase
