@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
@@ -18,6 +19,8 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
     }
     void Update()
     {
+        if (!isShooting)
+            return;
         PlayerTracking();
         Attack();
     }
@@ -36,8 +39,6 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
         if (nextShotTime > Time.time)
             return;
         nextShotTime = Time.time + shotInterval;
-        if (!isShooting)
-            return;
 
         currentBurstCount++;
         Instantiate(bulletPrefab, nosel.position, nosel.rotation);
@@ -51,6 +52,9 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
     }
     public void TakeDamage(int damage, Vector3 dmgTakenFromPos)
     {
+        if (curHealth <= 0)
+            return;
+
         curHealth -= damage;
 
         GetComponentInChildren<Enemy_Flash_Scr>().StartFlash();
@@ -66,7 +70,16 @@ public class Boss_1_Turret_Scr : MonoBehaviour, IDamageable
         DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
         smokeVfxObj.SetActive(true);
         transform.parent.parent.parent.GetComponent<Boss_1_Scr>().TurretIsDestroyed(turretID);
-        Destroy(gameObject);
+        isShooting = false;
+
+        float jumpTime = 1f;
+        transform.parent = null;
+        Vector3 jumpTarget = transform.position + new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-10f, -8f));
+        jumpTarget.y = -17f;
+        transform.DOJump(jumpTarget, 20f, 1, jumpTime).SetEase(Ease.InQuad).onComplete = () => { 
+            DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
+            Destroy(gameObject); };
+        transform.DORotate(new Vector3(Random.Range(-360, 360), Random.Range(-360, 360), Random.Range(-360, 360)), jumpTime - 0.03f);
     }
 
 

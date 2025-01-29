@@ -15,8 +15,8 @@ public class Boss_1_Scr : MonoBehaviour
     private bool movedAtAppearence = false; private Vector3 startPos, endPos;
     #endregion
     #region Phase 2 variables
-    private bool headIsTurnedBack = false;
-    private bool movedToNewPos = false; private float moveT = 0; private Vector3 phase1Pos; [SerializeField] private Vector3 phase2Pos;
+    private bool phase2InitMovementDone = false;
+    private float moveT = 0; [SerializeField] private Vector3 phase2Pos;
     private float bflShootInterval = 10f; private float nextBflShoot = -1; private float bflShootTime;
     private float headTurningSpeed = 25f;
     [SerializeField] private Boss_1_RocketLauncher_Scr leftRocketLauncher;
@@ -87,17 +87,10 @@ public class Boss_1_Scr : MonoBehaviour
 
     private void Phase2Behaviour()
     {
-        if (!movedToNewPos)
-            MoveToNewPos();
-
-
-        if (!headIsTurnedBack)
-        {
+        if (!phase2InitMovementDone)
             return;
-        }
-        else
-            Phase2Attack();
 
+        Phase2Attack();
         BFLPlayerTracking();
 
     }
@@ -108,16 +101,6 @@ public class Boss_1_Scr : MonoBehaviour
         adjustedPlayerPos = Vector3.Cross(Vector3.up, adjustedPlayerPos);
         bodyTransforms.head.rotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(adjustedPlayerPos, Vector3.up), headTurningSpeed * Time.deltaTime);
         //bodyTransforms.head.rotation = Quaternion.LookRotation(adjustedPlayerPos, Vector3.up);
-    }
-    private void MoveToNewPos()
-    {
-        transform.position = Vector3.Lerp(phase1Pos, phase2Pos, moveT);
-        moveT = Mathf.MoveTowards(moveT, 1, Time.deltaTime * 0.1f);
-        if (moveT == 1)
-        {
-            movedToNewPos = true;
-            nextBflShoot = Time.time;
-        }
     }
     private void Phase2Attack()
     {
@@ -154,16 +137,26 @@ public class Boss_1_Scr : MonoBehaviour
     private void InitializePhase2()
     {
         phase = Phase.phase_2;
-        phase1Pos = transform.position;
+
         bflShootTime = vfxTransforms.bflShotVfx.GetComponent<VisualEffect>().GetFloat("Time");
-        bodyTransforms.head.DORotate(Quaternion.LookRotation(Vector3.left, Vector3.up).eulerAngles, 6f).SetEase(Ease.InQuad).onComplete = OnHeadTurnbackComplete;
+
+        float animTime = 6f;
+        Sequence animSequence = DOTween.Sequence();
+        animSequence.Append(bodyTransforms.head.DORotate(Quaternion.LookRotation(Vector3.left, Vector3.up).eulerAngles, animTime).SetEase(Ease.InOutQuad));
+        animSequence.Join(transform.DOMove(phase2Pos, animTime).SetEase(Ease.InOutQuad));
+        animSequence.InsertCallback(animTime / 2, ExtendBfl);
+        animSequence.AppendCallback(OnPhase2MovementEnd);
+
         moveT = 0;
     }
-    void OnHeadTurnbackComplete()
+    void OnPhase2MovementEnd()
+    {
+        phase2InitMovementDone = true;
+        leftRocketLauncher.StartBarrage(3);
+    }
+    void ExtendBfl()
     {
         GetComponent<Animator>().SetBool("BFL is extending", true);
-        headIsTurnedBack = true;
-        leftRocketLauncher.StartBarrage(3);
     }
 
     private enum Phase
