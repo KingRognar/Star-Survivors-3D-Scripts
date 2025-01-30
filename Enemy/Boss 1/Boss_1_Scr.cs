@@ -12,25 +12,22 @@ public class Boss_1_Scr : MonoBehaviour
 
     #region Phase 1 Variables
     private bool[] turretsDestroyed = new bool[3] { false, false, false };
-    private bool movedAtAppearence = false; private Vector3 startPos, endPos;
     #endregion
     #region Phase 2 variables
-    private bool phase2InitMovementDone = false;
-    private float moveT = 0; [SerializeField] private Vector3 phase2Pos;
-    private float bflShootInterval = 10f; private float nextBflShoot = -1; private float bflShootTime;
+    private bool phase2InitMovementDone = false; [SerializeField] private Vector3 phase2Pos;
+    private float bflShootInterval = 10f; private float bflShootTime; private bool bflReadyToShoot = true;
     private float headTurningSpeed = 25f;
     [SerializeField] private Boss_1_RocketLauncher_Scr leftRocketLauncher;
+    [SerializeField] private Boss_1_RocketLauncher_Scr rightRocketLauncher;
     #endregion
 
     // start pos 0, -17.5, 9
     //TODO: BFL 
-    //TODO: Animations
     //TODO: Visualize damage delt
     //TODO: Rocket launchers
     //TODO: Boss HP Bar(s)
     //TODO: прибратьс€
-    //TODO: постепенно замедлить Ѕ√ до 18 (багает чЄт)
-    //TODO: переделать на tween'ы - 100%
+    //TODO: add IDamageable and HP bars to rocketLaunchers
 
 
     private void Start()
@@ -39,15 +36,12 @@ public class Boss_1_Scr : MonoBehaviour
         transform.position = new(0, -100, 90);
         bodyTransforms.head.rotation = Quaternion.Euler(0, 90, 0);
         BackgroundManager_Scr.AddToSpawnedElements(gameObject);
+        MoveAtAppearence();
     }
     private void Update()
     {
         if (phase != Phase.phase_2)
-        {
-            if (!movedAtAppearence) MoveAtAppearence();
             return;
-        }
-
 
         Phase2Behaviour();
 
@@ -58,22 +52,9 @@ public class Boss_1_Scr : MonoBehaviour
 
     private void MoveAtAppearence()
     {
-        DOTween.To(() => moveT, x => moveT = x, 1f, 6f);
-        startPos = transform.position;
-        endPos = new(0, -17.5f, 9);
-        _ = MoveTask();
-        movedAtAppearence = true;
-    }
-    private async Task MoveTask()
-    {
-        while (moveT != 1 && !destroyCancellationToken.IsCancellationRequested)
-        {
-            transform.position = Vector3.Lerp(startPos, endPos, moveT);
-            BackgroundManager_Scr.instance.backgroundSpeed = Mathf.Lerp(45, 18, moveT);
-            await Task.Yield();
-        }
-        moveT = 0;
-        TurretsStartAttack(); 
+        Vector3 endPos = new(0, -17.5f, 9f);
+        transform.DOMove(endPos, 6f).SetEase(Ease.InOutQuad).onComplete = () => { TurretsStartAttack(); };
+        DOTween.To(() => BackgroundManager_Scr.instance.backgroundSpeed, x => BackgroundManager_Scr.instance.backgroundSpeed = x, 18, 6f);
     }
     public void TurretsStartAttack()
     {
@@ -102,22 +83,45 @@ public class Boss_1_Scr : MonoBehaviour
         bodyTransforms.head.rotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(adjustedPlayerPos, Vector3.up), headTurningSpeed * Time.deltaTime);
         //bodyTransforms.head.rotation = Quaternion.LookRotation(adjustedPlayerPos, Vector3.up);
     }
-    private void Phase2Attack()
+    private void Phase2Attack() //TODO: переименовать вс€кое
     {
-        if (bodyTransforms.cannon == null)
+        if (bodyTransforms.cannon == null) //TODO: убрать когда сделаю и ракетницы
             return;
 
-        if (nextBflShoot <= Time.time)
+        if (!bflReadyToShoot)
+            return;
+
+        bflReadyToShoot = false;
+        Sequence bflShotSequence = DOTween.Sequence();
+        if (vfxTransforms.bflShotVfx != null)
         {
-            vfxTransforms.bflShotVfx.gameObject.SetActive(true);
-            headTurningSpeed = 15f;
-            nextBflShoot += bflShootInterval;
+            bflShotSequence.AppendCallback(() => {
+                vfxTransforms.bflShotVfx.gameObject.SetActive(true);
+                headTurningSpeed = 15f;
+            });
+            bflShotSequence.AppendInterval(bflShootTime);
+            bflShotSequence.AppendCallback(() => {
+                vfxTransforms.bflShotVfx.gameObject.SetActive(false);
+                headTurningSpeed = 25f;
+            });
         }
-        if (nextBflShoot - bflShootInterval + bflShootTime < Time.time)
+
+        //TODO: прив€зать кол-во запускаемых ракет к общему здоровью босса
+        float rocketBarrageTime = 0f;
+        if (leftRocketLauncher != null)
         {
-            vfxTransforms.bflShotVfx.gameObject.SetActive(false);
-            headTurningSpeed = 25f;
+            bflShotSequence.AppendCallback(() => { rocketBarrageTime = leftRocketLauncher.StartBarrage(3); });
         }
+        if (rightRocketLauncher != null)
+        {
+            float secondTime = 0f;
+            bflShotSequence.AppendCallback(() => { secondTime = rightRocketLauncher.StartBarrage(3, 1f); });
+            if (secondTime > rocketBarrageTime)
+                rocketBarrageTime = secondTime;
+        }
+        bflShotSequence.AppendInterval(rocketBarrageTime + bflShootInterval);
+
+        bflShotSequence.AppendCallback(() => { bflReadyToShoot = true; });
     }
 
     public void TurretIsDestroyed(int turretID)
@@ -145,14 +149,7 @@ public class Boss_1_Scr : MonoBehaviour
         animSequence.Append(bodyTransforms.head.DORotate(Quaternion.LookRotation(Vector3.left, Vector3.up).eulerAngles, animTime).SetEase(Ease.InOutQuad));
         animSequence.Join(transform.DOMove(phase2Pos, animTime).SetEase(Ease.InOutQuad));
         animSequence.InsertCallback(animTime / 2, ExtendBfl);
-        animSequence.AppendCallback(OnPhase2MovementEnd);
-
-        moveT = 0;
-    }
-    void OnPhase2MovementEnd()
-    {
-        phase2InitMovementDone = true;
-        leftRocketLauncher.StartBarrage(3);
+        animSequence.AppendCallback(() => { phase2InitMovementDone = true; });
     }
     void ExtendBfl()
     {

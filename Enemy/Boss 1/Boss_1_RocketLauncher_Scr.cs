@@ -1,5 +1,6 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Boss_1_RocketLauncher_Scr : MonoBehaviour
 {
@@ -20,20 +21,23 @@ public class Boss_1_RocketLauncher_Scr : MonoBehaviour
         barrels[4] = transform.GetChild(4);
     }
 
-    // Update is called once per frame
-    void Update()
+    public float StartBarrage(int rocketsToShoot, float initialDelay = 0f)
     {
-        if (isBarraging)
-            Barrage();
-    }
+        if (isBarraging) return launchDelay;
 
-    public void StartBarrage(int rocketsToShoot)
-    {
-        if (isBarraging) return;
-
-        barrageNum = rocketsToShoot;
+        //barrageNum = rocketsToShoot;
         isBarraging = true;
-        DOTween.To(() => tempT, x => tempT = x, rocketsToShoot, rocketsToShoot * launchDelay);
+        //DOTween.To(() => tempT, x => tempT = x, rocketsToShoot, rocketsToShoot * launchDelay);
+
+        Sequence barrageSequence = DOTween.Sequence();
+        barrageSequence.AppendInterval(initialDelay);
+        for (int i = 0; i < rocketsToShoot; i++)
+        {
+            barrageSequence.AppendCallback(() => { Instantiate(rocketPrefab, barrels[i].position, barrels[i].rotation); });
+            barrageSequence.AppendInterval(launchDelay);
+        }
+        barrageSequence.AppendCallback(() => { isBarraging = false; });
+        return barrageSequence.Duration();
     }
     private void Barrage()
     {
