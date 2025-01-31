@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class Boss_1_BflCannon_Scr : MonoBehaviour, IDamageable
 {
-    private int curHp; [SerializeField] private int maxHp = 1000;
+    public int maxHp = 1000, curHp;
     private UI_BossHP_Bar_Scr uiBossHp;
     [SerializeField] private GameObject uiBossHp_prefab;
     [SerializeField] private GameObject destroyedBflPref;
-    private bool isDestroyed = false;
 
 
     public void Start()
@@ -20,15 +19,17 @@ public class Boss_1_BflCannon_Scr : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage, Vector3 dmgTakenFromPos)
     {
+        if (curHp <= 0)
+            return;
+
         curHp -= damage;
 
         Enemy_Flash_Scr[] flashes = GetComponentsInChildren<Enemy_Flash_Scr>();
         foreach (Enemy_Flash_Scr flash in flashes)
             flash.StartFlash();
-        //GetComponent<Enemy_HitEffect_Scr>().SpawnParticles(dmgTakenFromPos);
-        uiBossHp.UpdateHPBar(curHp, maxHp);     //TODO: instantiate HP bar by yourself
+        uiBossHp.UpdateHPBar(curHp, maxHp);
 
-        if (curHp <= 0 && !isDestroyed)
+        if (curHp <= 0)
             Explode();
     }
 
@@ -36,7 +37,6 @@ public class Boss_1_BflCannon_Scr : MonoBehaviour, IDamageable
 
     private async void Explode()
     {
-        isDestroyed = true;
         Collider[] colliders = GetComponentsInChildren<Collider>();
         Task[] tasks = new Task[2];
         tasks[0] = DebriesMaker_Scr.instance.BigObjectExplosions(colliders[0], transform, 8f, 10, 15);

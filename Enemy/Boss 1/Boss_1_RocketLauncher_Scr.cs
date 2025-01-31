@@ -2,14 +2,13 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Boss_1_RocketLauncher_Scr : MonoBehaviour
+public class Boss_1_RocketLauncher_Scr : MonoBehaviour, IDamageable
 {
+    public float maxHp = 500f, curHp;
     [SerializeField] private float launchDelay;
-    private int barrageNum = 5;
     private bool isBarraging = false;
-    private float tempT = 0; private int i = 0;
 
-    private Transform[] barrels = new Transform[5];
+    [SerializeField] private Transform[] barrels = new Transform[5];
     [SerializeField] private GameObject rocketPrefab;
 
     void Start()
@@ -19,6 +18,7 @@ public class Boss_1_RocketLauncher_Scr : MonoBehaviour
         barrels[2] = transform.GetChild(2);
         barrels[3] = transform.GetChild(3);
         barrels[4] = transform.GetChild(4);
+        curHp = maxHp;
     }
 
     public float StartBarrage(int rocketsToShoot, float initialDelay = 0f)
@@ -33,23 +33,39 @@ public class Boss_1_RocketLauncher_Scr : MonoBehaviour
         barrageSequence.AppendInterval(initialDelay);
         for (int i = 0; i < rocketsToShoot; i++)
         {
-            barrageSequence.AppendCallback(() => { Instantiate(rocketPrefab, barrels[i].position, barrels[i].rotation); });
+            int curBarrel = i;
+            barrageSequence.AppendCallback(() => InstantiateRocket(curBarrel));
             barrageSequence.AppendInterval(launchDelay);
         }
         barrageSequence.AppendCallback(() => { isBarraging = false; });
         return barrageSequence.Duration();
     }
-    private void Barrage()
+    private void InstantiateRocket(int barrelNum)
     {
-        if (tempT <= i) return;
-        if (barrageNum == i)
-        {
-            isBarraging = false;
-            tempT = 0;
-            i = 0;
-        }
-
-        Instantiate(rocketPrefab, barrels[i].position, barrels[i].rotation);
-        i++;
+        if (barrels[barrelNum] == null) return;
+        Instantiate(rocketPrefab, barrels[barrelNum].position, barrels[barrelNum].rotation);
     }
+
+    public void TakeDamage(int damage, Vector3 dmgTakenFromPos)
+    {
+        if (curHp <= 0)
+            return;
+
+        curHp -= damage;
+
+        GetComponent<Enemy_Flash_Scr>().StartFlash();
+        Collider collider = GetComponent<Collider>();
+        Vector3 collisionPoint = collider.ClosestPoint(dmgTakenFromPos);
+        DebriesMaker_Scr.instance.HitFromPosAndDir(collisionPoint, dmgTakenFromPos - collisionPoint);
+        //uiBossHp.UpdateHPBar(curHp, maxHp);     //TODO: instantiate HP bar by yourself
+
+        if (curHp <= 0)
+            Explode();
+    }
+    private void Explode()
+    {
+        DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
+        Destroy(gameObject);
+    }
+
 }

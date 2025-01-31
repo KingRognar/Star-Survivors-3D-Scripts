@@ -19,7 +19,8 @@ public class Enemy_Rocket_Scr : MonoBehaviour, IDamageable
 
     private void Start()
     {
-        playerTrans = Player_Stats_Scr.instance.transform;
+        if (Player_Stats_Scr.instance != null)
+            playerTrans = Player_Stats_Scr.instance.transform;
         curHealth = maxHealth;
         DOTween.To(() => moveT, x => moveT = x, 1f, startupTime);
         startPos = transform.position;

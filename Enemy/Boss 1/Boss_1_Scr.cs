@@ -15,10 +15,11 @@ public class Boss_1_Scr : MonoBehaviour
     #endregion
     #region Phase 2 variables
     private bool phase2InitMovementDone = false; [SerializeField] private Vector3 phase2Pos;
-    private float bflShootInterval = 10f; private float bflShootTime; private bool bflReadyToShoot = true;
+    private float attackInterval = 8f; private float bflShootTime; private bool readyToAttack = true;
     private float headTurningSpeed = 25f;
     [SerializeField] private Boss_1_RocketLauncher_Scr leftRocketLauncher;
     [SerializeField] private Boss_1_RocketLauncher_Scr rightRocketLauncher;
+    private float curTotalHp, maxTotalHp;
     #endregion
 
     // start pos 0, -17.5, 9
@@ -33,6 +34,9 @@ public class Boss_1_Scr : MonoBehaviour
     private void Start()
     {
         //transform.position = new(0, -17.5f, 9);
+
+        maxTotalHp = GetMaxTotalHp();
+        curTotalHp = maxTotalHp;
         transform.position = new(0, -100, 90);
         bodyTransforms.head.rotation = Quaternion.Euler(0, 90, 0);
         BackgroundManager_Scr.AddToSpawnedElements(gameObject);
@@ -50,6 +54,24 @@ public class Boss_1_Scr : MonoBehaviour
     }
 
 
+    private float GetMaxTotalHp()
+    {
+        float totalHp = 0;
+        totalHp += bodyTransforms.cannon.GetComponent<Boss_1_BflCannon_Scr>().maxHp;
+        totalHp += leftRocketLauncher.maxHp * 2;
+        return totalHp;
+    }
+    private float GetCurTotalHp()
+    {
+        float totalHp = 0;
+        if (bodyTransforms.cannon != null)
+            totalHp += bodyTransforms.cannon.GetComponent<Boss_1_BflCannon_Scr>().curHp;
+        if (leftRocketLauncher != null)
+            totalHp += leftRocketLauncher.curHp;
+        if (rightRocketLauncher != null)
+            totalHp += rightRocketLauncher.curHp;
+        return totalHp;
+    }
     private void MoveAtAppearence()
     {
         Vector3 endPos = new(0, -17.5f, 9f);
@@ -77,7 +99,12 @@ public class Boss_1_Scr : MonoBehaviour
     }
     private void BFLPlayerTracking()
     {
-        Vector3 adjustedPlayerPos = Player_Stats_Scr.instance.transform.position - bodyTransforms.head.position; //TODO: handle destroyed player
+        Vector3 playerPos;
+        if (Player_Stats_Scr.instance != null)
+            playerPos = Player_Stats_Scr.instance.transform.position;
+        else
+            playerPos = new(0, 0, -10f);
+        Vector3 adjustedPlayerPos = playerPos - bodyTransforms.head.position; //TODO: handle destroyed player
         adjustedPlayerPos.y = 0;
         adjustedPlayerPos = Vector3.Cross(Vector3.up, adjustedPlayerPos);
         bodyTransforms.head.rotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(adjustedPlayerPos, Vector3.up), headTurningSpeed * Time.deltaTime);
@@ -85,15 +112,12 @@ public class Boss_1_Scr : MonoBehaviour
     }
     private void Phase2Attack() //TODO: переименовать всякое
     {
-        if (bodyTransforms.cannon == null) //TODO: убрать когда сделаю и ракетницы
+        if (!readyToAttack)
             return;
 
-        if (!bflReadyToShoot)
-            return;
-
-        bflReadyToShoot = false;
+        readyToAttack = false;
         Sequence bflShotSequence = DOTween.Sequence();
-        if (vfxTransforms.bflShotVfx != null)
+        if (vfxTransforms.bflShotVfx != null) // часть сиквенса отв за БФЛ
         {
             bflShotSequence.AppendCallback(() => {
                 vfxTransforms.bflShotVfx.gameObject.SetActive(true);
@@ -107,21 +131,24 @@ public class Boss_1_Scr : MonoBehaviour
         }
 
         //TODO: привязать кол-во запускаемых ракет к общему здоровью босса
+
+        curTotalHp = GetCurTotalHp();
+        int additionalRockets = (int)(maxTotalHp - curTotalHp) / (int)(maxTotalHp / 3);
         float rocketBarrageTime = 0f;
         if (leftRocketLauncher != null)
         {
-            bflShotSequence.AppendCallback(() => { rocketBarrageTime = leftRocketLauncher.StartBarrage(3); });
+            bflShotSequence.AppendCallback(() => { rocketBarrageTime = leftRocketLauncher.StartBarrage(3 + additionalRockets); });
         }
         if (rightRocketLauncher != null)
         {
             float secondTime = 0f;
-            bflShotSequence.AppendCallback(() => { secondTime = rightRocketLauncher.StartBarrage(3, 1f); });
+            bflShotSequence.AppendCallback(() => { secondTime = rightRocketLauncher.StartBarrage(3 + additionalRockets, 1f); });
             if (secondTime > rocketBarrageTime)
                 rocketBarrageTime = secondTime;
         }
-        bflShotSequence.AppendInterval(rocketBarrageTime + bflShootInterval);
+        bflShotSequence.AppendInterval(rocketBarrageTime + attackInterval);
 
-        bflShotSequence.AppendCallback(() => { bflReadyToShoot = true; });
+        bflShotSequence.AppendCallback(() => { readyToAttack = true; });
     }
 
     public void TurretIsDestroyed(int turretID)

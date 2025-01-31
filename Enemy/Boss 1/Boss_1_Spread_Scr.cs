@@ -42,6 +42,9 @@ public class Boss_1_Spread_Scr : MonoBehaviour, IDamageable
     }
     public void TakeDamage(int damage, Vector3 dmgTakenFromPos)
     {
+        if (curHealth <= 0)
+            return;
+
         curHealth -= damage;
 
         GetComponentInChildren<Enemy_Flash_Scr>().StartFlash();
