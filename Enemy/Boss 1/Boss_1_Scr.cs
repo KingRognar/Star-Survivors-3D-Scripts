@@ -20,6 +20,7 @@ public class Boss_1_Scr : MonoBehaviour
     [SerializeField] private Boss_1_RocketLauncher_Scr leftRocketLauncher;
     [SerializeField] private Boss_1_RocketLauncher_Scr rightRocketLauncher;
     private float curTotalHp, maxTotalHp;
+    private bool isExploding = false;
     #endregion
 
     // start pos 0, -17.5, 9
@@ -48,9 +49,6 @@ public class Boss_1_Scr : MonoBehaviour
             return;
 
         Phase2Behaviour();
-
-        if (Input.GetKeyDown(KeyCode.H))
-            vfxTransforms.bflShotVfx.gameObject.SetActive(!vfxTransforms.bflShotVfx.gameObject.activeInHierarchy);
     }
 
 
@@ -90,12 +88,14 @@ public class Boss_1_Scr : MonoBehaviour
 
     private void Phase2Behaviour()
     {
-        if (!phase2InitMovementDone)
+        if (!phase2InitMovementDone || isExploding)
             return;
 
         Phase2Attack();
         BFLPlayerTracking();
-
+        curTotalHp = GetCurTotalHp();
+        if (curTotalHp <= 0)
+            ExplosionSequence();
     }
     private void BFLPlayerTracking()
     {
@@ -110,45 +110,42 @@ public class Boss_1_Scr : MonoBehaviour
         bodyTransforms.head.rotation = Quaternion.RotateTowards(bodyTransforms.head.rotation, Quaternion.LookRotation(adjustedPlayerPos, Vector3.up), headTurningSpeed * Time.deltaTime);
         //bodyTransforms.head.rotation = Quaternion.LookRotation(adjustedPlayerPos, Vector3.up);
     }
-    private void Phase2Attack() //TODO: переименовать всякое
+    private void Phase2Attack()
     {
         if (!readyToAttack)
             return;
 
         readyToAttack = false;
-        Sequence bflShotSequence = DOTween.Sequence();
-        if (vfxTransforms.bflShotVfx != null) // часть сиквенса отв за БФЛ
+        Sequence attackSequence = DOTween.Sequence();
+        if (vfxTransforms.bflShotVfx != null)
         {
-            bflShotSequence.AppendCallback(() => {
+            attackSequence.AppendCallback(() => {
                 vfxTransforms.bflShotVfx.gameObject.SetActive(true);
                 headTurningSpeed = 15f;
             });
-            bflShotSequence.AppendInterval(bflShootTime);
-            bflShotSequence.AppendCallback(() => {
+            attackSequence.AppendInterval(bflShootTime);
+            attackSequence.AppendCallback(() => {
                 vfxTransforms.bflShotVfx.gameObject.SetActive(false);
                 headTurningSpeed = 25f;
             });
         }
 
-        //TODO: привязать кол-во запускаемых ракет к общему здоровью босса
-
-        curTotalHp = GetCurTotalHp();
         int additionalRockets = (int)(maxTotalHp - curTotalHp) / (int)(maxTotalHp / 3);
         float rocketBarrageTime = 0f;
         if (leftRocketLauncher != null)
         {
-            bflShotSequence.AppendCallback(() => { rocketBarrageTime = leftRocketLauncher.StartBarrage(3 + additionalRockets); });
+            attackSequence.AppendCallback(() => { rocketBarrageTime = leftRocketLauncher.StartBarrage(3 + additionalRockets); });
         }
         if (rightRocketLauncher != null)
         {
             float secondTime = 0f;
-            bflShotSequence.AppendCallback(() => { secondTime = rightRocketLauncher.StartBarrage(3 + additionalRockets, 1f); });
+            attackSequence.AppendCallback(() => { secondTime = rightRocketLauncher.StartBarrage(3 + additionalRockets, 1f); });
             if (secondTime > rocketBarrageTime)
                 rocketBarrageTime = secondTime;
         }
-        bflShotSequence.AppendInterval(rocketBarrageTime + attackInterval);
+        attackSequence.AppendInterval(rocketBarrageTime + attackInterval);
 
-        bflShotSequence.AppendCallback(() => { readyToAttack = true; });
+        attackSequence.AppendCallback(() => { readyToAttack = true; });
     }
 
     public void TurretIsDestroyed(int turretID)
@@ -178,9 +175,22 @@ public class Boss_1_Scr : MonoBehaviour
         animSequence.InsertCallback(animTime / 2, ExtendBfl);
         animSequence.AppendCallback(() => { phase2InitMovementDone = true; });
     }
-    void ExtendBfl()
+    private void ExtendBfl()
     {
         GetComponent<Animator>().SetBool("BFL is extending", true);
+    }
+
+    private void ExplosionSequence()
+    {
+        isExploding = true;
+        Sequence sequence = DOTween.Sequence();
+
+        sequence.AppendCallback(() => { DebriesMaker_Scr.instance.ScreenFlash(); });
+        sequence.AppendInterval(1f);
+        sequence.AppendCallback(() => { 
+            Destroy(bodyTransforms.head.gameObject);
+            gameObject.GetComponent<Animator>().enabled = false;
+        });
     }
 
     private enum Phase

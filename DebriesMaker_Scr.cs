@@ -7,8 +7,12 @@ public class DebriesMaker_Scr : MonoBehaviour
 {
     public static DebriesMaker_Scr instance;
 
+    private Transform canvasTrans;
+    [Space(20)]
     [SerializeField] private GameObject explosionPrefab;
     [SerializeField] private GameObject hitPrefab;
+    [SerializeField] private GameObject ScreenFlashPrefab;
+
 
     private void Awake()
     {
@@ -16,6 +20,15 @@ public class DebriesMaker_Scr : MonoBehaviour
             instance = this;
         else
             Destroy(gameObject);
+    }
+    private void Start()
+    {
+        canvasTrans = GameObject.Find("Canvas").transform;
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.H))
+            ScreenFlash();
     }
 
     public void ExplodeOnPos(Vector3 explosionPos)
@@ -39,6 +52,15 @@ public class DebriesMaker_Scr : MonoBehaviour
     public void HitFromPosAndDir(Vector3 pos, Vector3 direction)
     {
         Instantiate(hitPrefab, pos, Quaternion.FromToRotation(Vector3.up, direction));
+    }
+    public void ScreenFlash()
+    {
+        Instantiate(ScreenFlashPrefab, canvasTrans);
+    }
+    public void ScreenFlash(float fadeInTime, float pauseTime, float fadeOutTime)
+    {
+        GameObject gm = Instantiate(ScreenFlashPrefab, canvasTrans);
+        gm.GetComponent<UI_ScreenFlash2_Scr>().SetTimes(fadeInTime, pauseTime, fadeOutTime);
     }
 
 
