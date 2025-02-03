@@ -35,7 +35,7 @@ public class DebriesMaker_Scr : MonoBehaviour
     {
         Instantiate(explosionPrefab, explosionPos, Quaternion.identity);
     }
-    public async Task BigObjectExplosions(Collider collider,Transform trans, float radius, int explMin, int explMax)
+    public async Task BigObjectExplosions(Collider collider,Transform trans, float radius, int explMin, int explMax) //TODO: переделать на сиквенс
     {
         int explCount = Random.Range(explMin, explMax);
 

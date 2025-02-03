@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml.Xsl;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -22,6 +24,8 @@ public class Boss_1_Scr : MonoBehaviour
     private float curTotalHp, maxTotalHp;
     private bool isExploding = false;
     #endregion
+    [SerializeField] private List<GameObject> destroyedVfxList = new List<GameObject>();
+    private bool isMovingAway = false;
 
     // start pos 0, -17.5, 9
     //TODO: BFL 
@@ -43,10 +47,16 @@ public class Boss_1_Scr : MonoBehaviour
         BackgroundManager_Scr.AddToSpawnedElements(gameObject);
         MoveAtAppearence();
     }
-    private void Update()
+    private void Update() //TODO: организовать покрасивее
     {
         if (phase != Phase.phase_2)
             return;
+
+        if (isMovingAway)
+        {
+            transform.position += BackgroundManager_Scr.instance.backgroundSpeed * Time.deltaTime * new Vector3(0, 0, -1);
+            return;
+        }
 
         Phase2Behaviour();
     }
@@ -180,16 +190,24 @@ public class Boss_1_Scr : MonoBehaviour
         GetComponent<Animator>().SetBool("BFL is extending", true);
     }
 
-    private void ExplosionSequence()
+    private void ExplosionSequence() //TODO: взрывать все выпущенные ракеты
     {
         isExploding = true;
         Sequence sequence = DOTween.Sequence();
 
+        sequence.AppendCallback(() => {
+            _ = DebriesMaker_Scr.instance.BigObjectExplosions(bodyTransforms.head.GetChild(1).GetComponent<Collider>(),
+            bodyTransforms.head, 40, 40, 50);
+        });
+        sequence.AppendInterval(2.5f);
         sequence.AppendCallback(() => { DebriesMaker_Scr.instance.ScreenFlash(); });
         sequence.AppendInterval(1f);
         sequence.AppendCallback(() => { 
             Destroy(bodyTransforms.head.gameObject);
             gameObject.GetComponent<Animator>().enabled = false;
+            foreach (GameObject gm in destroyedVfxList)
+                gm.SetActive(true);
+            isMovingAway = true;
         });
     }
 

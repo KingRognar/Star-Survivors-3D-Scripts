@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 public class Boss_1_RocketLauncher_Scr : MonoBehaviour, IDamageable
 {
-    public float maxHp = 200f, curHp;
+    public float maxHp = 100f, curHp;
     [SerializeField] private float launchDelay;
     private bool isBarraging = false;
 
