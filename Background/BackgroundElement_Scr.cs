@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class BackgroundElement_Scr : MonoBehaviour
 {
-    Bounds bounds;
+    public Bounds bounds;
+    private bool isNextElementSpawned = false;
+
     private void Start()
     {
         BackgroundManager_Scr.AddToSpawnedElements(gameObject);
@@ -15,13 +17,15 @@ public class BackgroundElement_Scr : MonoBehaviour
         transform.position += BackgroundManager_Scr.instance.backgroundSpeed * Time.deltaTime * new Vector3(0, 0, -1);
         transform.GizmoPointer(bounds.max + transform.position);
         transform.GizmoPointer(bounds.min + transform.position);
+        if (!isNextElementSpawned)
+            CheckNextElementSpawn();
     }
     private void OnDestroy()
     {
         BackgroundManager_Scr.RemoveSpawnedElements(gameObject);
     }
 
-    private void CalculateBounds()
+    public void CalculateBounds()
     {
         Quaternion currentRotation = transform.rotation;
         transform.rotation = Quaternion.Euler(0f, 0f, 0f);
@@ -33,6 +37,15 @@ public class BackgroundElement_Scr : MonoBehaviour
         Vector3 localCenter = bounds.center - transform.position;
         bounds.center = localCenter;
         transform.rotation = currentRotation;
-        Debug.Log(bounds.size);
+    }
+    private void CheckNextElementSpawn()
+    {
+        Bounds bouns = bounds;
+        bouns.center = transform.position;
+        if (GeometryUtility.TestPlanesAABB(BackgroundManager_Scr.planes, bouns))
+        {
+            BackgroundManager_Scr.instance.SpawnNewElement(bounds, transform.position);
+            isNextElementSpawned = true;
+        }
     }
 }

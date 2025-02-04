@@ -17,6 +17,8 @@ public class BackgroundManager_Scr : MonoBehaviour
 
     public float backgroundSpeed = 45f;
 
+    public static Plane[] planes; //TODO: перекинуть на камеру
+
     //TODO: set spawn delay relative to background speed
 
     private void Awake()
@@ -25,10 +27,17 @@ public class BackgroundManager_Scr : MonoBehaviour
             instance = this;
         else
             Destroy(gameObject);
+
+        planes = GeometryUtility.CalculateFrustumPlanes(Camera.main);
     }
-    void Update()
+    private void Start()
     {
-        RunParallax();
+        int rnd = Random.Range(0, backgroundElementPrefabs.Count);
+        Instantiate(backgroundElementPrefabs[rnd], spawnPosition, Quaternion.identity); //TODO: определять z динамически
+    }
+    private void Update()
+    {
+        //RunParallax();
         if (t != 1) //TODO: integrate it in to Enemy Director and\or Bosses themselvs
             MoveToNewHeight();
         if (Input.GetKeyDown(KeyCode.G))
@@ -46,7 +55,7 @@ public class BackgroundManager_Scr : MonoBehaviour
 
 
         int rnd = Random.Range(0, backgroundElementPrefabs.Count);
-        Instantiate(backgroundElementPrefabs[rnd], spawnPosition, Quaternion.identity); //TODO: определять z динамически
+        //Instantiate(backgroundElementPrefabs[rnd], spawnPosition, Quaternion.identity); //TODO: определять z динамически
         lastSpawnTime = Time.time + (timeBetweenSpawns * 45 / backgroundSpeed);
     }
     public void SetNewHeight(float newHeight)
@@ -63,6 +72,17 @@ public class BackgroundManager_Scr : MonoBehaviour
         spawnPosition = Vector3.Lerp(oldSpawnPosition, newSpawnPosition, t);
         foreach (GameObject bgElement in spawnedElements)
             bgElement.transform.position = new(bgElement.transform.position.x, spawnPosition.y, bgElement.transform.position.z);
+    }
+    public void SpawnNewElement(Bounds prevBounds, Vector3 prevPos)
+    {
+        int rnd = Random.Range(0, backgroundElementPrefabs.Count);
+        Transform newElementTrans = Instantiate(backgroundElementPrefabs[rnd], spawnPosition, Quaternion.identity).transform;
+        BackgroundElement_Scr bgElementScr = newElementTrans.GetComponent<BackgroundElement_Scr>();
+        bgElementScr.CalculateBounds();
+        float newZPos = prevPos.z + prevBounds.extents.z + bgElementScr.bounds.extents.z;
+        newElementTrans.position = new Vector3(newElementTrans.position.x, newElementTrans.position.y, newZPos);
+
+        Debug.Log("спавнул новый элемент");
     }
 
     public static void AddToSpawnedElements(GameObject gameObject)
