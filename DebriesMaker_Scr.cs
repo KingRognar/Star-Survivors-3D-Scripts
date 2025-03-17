@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
+using UnityEngine.VFX;
 
 public class DebriesMaker_Scr : MonoBehaviour
 {
@@ -11,7 +12,9 @@ public class DebriesMaker_Scr : MonoBehaviour
     [Space(20)]
     [SerializeField] private GameObject explosionPrefab;
     [SerializeField] private GameObject hitPrefab;
+    [SerializeField] private GameObject smokePrefab;
     [SerializeField] private GameObject ScreenFlashPrefab;
+
 
 
     private void Awake()
@@ -34,6 +37,15 @@ public class DebriesMaker_Scr : MonoBehaviour
     public void ExplodeOnPos(Vector3 explosionPos)
     {
         Instantiate(explosionPrefab, explosionPos, Quaternion.identity);
+    }
+    public void AddSmoke(Transform trans)
+    {
+        Instantiate(smokePrefab, trans.position, Quaternion.identity, trans);
+    }
+    public void AddSmoke(float size, Transform trans)
+    {
+        GameObject go = Instantiate(smokePrefab, trans.position, Quaternion.identity, trans);
+        go.GetComponent<VisualEffect>().SetFloat("size", size);
     }
     public async Task BigObjectExplosions(Collider collider,Transform trans, float radius, int explMin, int explMax) //TODO: переделать на сиквенс
     {

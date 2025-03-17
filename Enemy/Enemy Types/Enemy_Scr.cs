@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 [RequireComponent(typeof(Enemy_Flash_Scr))]
@@ -11,6 +12,7 @@ public class Enemy_Scr : MonoBehaviour, IDamageable
     public float maxHealth = 10f;
     protected float curHealth;
     public int expAward = 2;
+    bool behaviourDisabled = false;
 
     private void Awake()
     {
@@ -22,6 +24,8 @@ public class Enemy_Scr : MonoBehaviour, IDamageable
     }
     private void Update()
     {
+        if (behaviourDisabled)
+            return;
         EnemyMovement();
     }
 
@@ -52,11 +56,41 @@ public class Enemy_Scr : MonoBehaviour, IDamageable
     /// <summary>
     /// Метод, вызываемый при смерти врага
     /// </summary>
-    protected virtual void Die() //TODO: почему-то вызывается несколько раз когда попадает много снарядов
+    protected virtual void Die()
     {
         DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
         UpgradeSystem_Scr.instance.InstantiateExpShards(transform.position, expAward); //TODO: нужна ли анимация?
-        Disappear();
+        //Disappear();
+        GroundCrash2();
+    }
+    protected void GroundCrash()
+    {
+        behaviourDisabled = true;
+        SubCountToDirector(EnemyId);
+        Vector3 jumpTarget = transform.position + new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-10f, -8f));
+        jumpTarget.y = BackgroundManager_Scr.instance.spawnPosition.y;
+        float jumpTime = -jumpTarget.y /20;
+
+        Sequence sequence = DOTween.Sequence();
+        sequence.Append(transform.DOJump(jumpTarget, 20f, 1, jumpTime).SetEase(Ease.InQuad));
+        sequence.Join(transform.DORotate(new Vector3(Random.Range(-360, 360), Random.Range(-360, 360), Random.Range(-360, 360)), jumpTime));
+        sequence.AppendCallback(() => { 
+            DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
+            Destroy(gameObject);
+        });
+    }
+    protected void GroundCrash2()
+    {
+        //behaviourDisabled = true;
+
+        Vector3 direction = Random.onUnitSphere;
+        float force = Random.Range(2f, 4f);
+        SubCountToDirector(EnemyId);
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        rb.AddRelativeForce(direction * force, ForceMode.Impulse);
+        DebriesMaker_Scr.instance.AddSmoke(0.4f ,transform);
     }
     /// <summary>
     /// Метод для удаления объекта врага
@@ -113,5 +147,14 @@ public class Enemy_Scr : MonoBehaviour, IDamageable
             return;
         Enemy_Director_Scr.enemyCountByID[id]--;
         Test_EnemyNumber_scr.instance.UpdateLine(id, Enemy_Director_Scr.enemyCountByID[id]);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!other.gameObject.CompareTag("Obstacle"))
+            return;
+
+        DebriesMaker_Scr.instance.ExplodeOnPos(transform.position);
+        Destroy(gameObject);
     }
 }
