@@ -29,7 +29,7 @@ public class UI_NewWeaponOption_Scr : MonoBehaviour, IPointerClickHandler
 
     public void UpdateVisuals()
     {
-        weaponDescriptionText.text = weapon_SO.weaponDescription;
-        weaponNameText.text = weapon_SO.weaponName;
+        weaponDescriptionText.text = weapon_SO.upTree.description;
+        weaponNameText.text = weapon_SO.upTree.upTreeName;
     }
 }

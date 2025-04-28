@@ -22,15 +22,15 @@ public class UI_LvlUp_UpgradeOption_Scr : MonoBehaviour, IPointerClickHandler
         //UpgradeSystem_Scr.instance.upgradesList.Remove(upgradeOptionSO);
 
         upgrade_SO.UpgradeAction();
-        if (upgrade_SO.nextUpgrades.Count != 0)
+        /*if (upgrade_SO.nextUpgrades.Count != 0)
         {
             foreach (GenericUpgrade_SO upgrade in upgrade_SO.nextUpgrades)
             {
                 upgrade.WeaponScript = upgrade_SO.WeaponScript; //BUG: когда выбрал machinegun damage N2 при 2 опциях всё полетело
             }
-            UpgradeSystem_Scr.instance.upgradesList.AddRange(upgrade_SO.nextUpgrades);
-        }
-        UpgradeSystem_Scr.instance.upgradesList.Remove(upgrade_SO);
+            //UpgradeSystem_Scr.instance.upgradeTrees.AddRange(upgrade_SO.nextUpgrades);
+        }*/
+        //UpgradeSystem_Scr.instance.upgradeTrees.Remove(upgrade_SO);
 
         UpgradeSystem_Scr.instance.CloseLvlUpMenu();
     }

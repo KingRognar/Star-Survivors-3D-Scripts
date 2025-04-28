@@ -19,10 +19,8 @@ public class UpgradeSystem_Scr : MonoBehaviour
     [SerializeField] private UI_EXP_Bar_Scr expBarUI;
     [SerializeField] private List<UI_LvlUp_UpgradeOption_Scr> UIlvlUpOptions;
 
-    //public List<UpgradeOption_SO> upgradesList = new List<UpgradeOption_SO>();
-    public List<GenericUpgrade_SO> upgradesList = new ();
-
-    //[SerializeField] private GenericUpgrade_SO genericUpgrade;
+    public List<UpgradeTree_SO> upgradeTrees = new (); //TODO: добавляем, когда получаем новое оружие/ выбираем новый апгрейд
+    public List<bool[]> upgradeUnlockTracker = new List<bool[]> (); //TODO: нужно заселять лист
 
     
 
@@ -89,12 +87,17 @@ public class UpgradeSystem_Scr : MonoBehaviour
     }
 
 
+    private List<GenericUpgrade_SO> GetPossibleUpgrades()
+    {
+        List<GenericUpgrade_SO> list = new List<GenericUpgrade_SO>();
+        return list;
+    }
     /// <summary>
     /// Метод, открывающий меню выбора улучшений
     /// </summary>
-    private void OpenLvlUpMenu()
+    private void OpenLvlUpMenu() //TODO: переписать под новый UI
     {
-        if (upgradesList.Count == 0)
+        if (upgradeTrees.Count == 0)
         {
             CloseLvlUpMenu();
             return;
@@ -105,12 +108,14 @@ public class UpgradeSystem_Scr : MonoBehaviour
 
 
         int cnt = 3;
-        if (upgradesList.Count < 3)
-            cnt = upgradesList.Count;
+        if (upgradeTrees.Count < 3)
+            cnt = upgradeTrees.Count;
+
+        List<GenericUpgrade_SO> possibleUpgrades = GetPossibleUpgrades(); //TODO: нужно ещё как-то получать UpgradeTree_SO
 
         try
         {
-            List<GenericUpgrade_SO> selectUpgrades = SelectSample(upgradesList, cnt);
+            List<GenericUpgrade_SO> selectUpgrades = SelectSample(possibleUpgrades, cnt);
             int i = 0;
             while (i < cnt)
             {
@@ -152,19 +157,19 @@ public class UpgradeSystem_Scr : MonoBehaviour
         upgradesList.Add(IncreasePlayerHP);
         upgradesList.Add(IncreasePlayerArmor);*/
     }
-    private List<GenericUpgrade_SO> SelectSample(List<GenericUpgrade_SO> transformsList, int numberOfSamples)
+    private List<GenericUpgrade_SO> SelectSample(List<GenericUpgrade_SO> upgradesList, int numberOfSamples)
     {
         List<GenericUpgrade_SO> samples = new ();
-        int itemsLeft = transformsList.Count;
+        int itemsLeft = upgradesList.Count;
         int i = 0;
         int samplesTaken = 0;
 
-        while (samplesTaken < numberOfSamples && i < transformsList.Count)
+        while (samplesTaken < numberOfSamples && i < upgradesList.Count)
         {
             int rnd = UnityEngine.Random.Range(1, itemsLeft - i + 1);
             if (rnd <= (numberOfSamples - samplesTaken))
             {
-                samples.Add(transformsList[i]);
+                samples.Add(upgradesList[i]);
                 samplesTaken++;
             }
             i++;
