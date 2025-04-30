@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Upgades;
 
 public class UpgradeSystem_Scr : MonoBehaviour
 {
@@ -15,14 +16,18 @@ public class UpgradeSystem_Scr : MonoBehaviour
     [SerializeField] private GameObject expShardPrefab;
 
     [SerializeField] private GameObject levelUpMenu;
+    [SerializeField] private UI_UpgradeMenu_Scr newLevelUpMenu;
 
     [SerializeField] private UI_EXP_Bar_Scr expBarUI;
     [SerializeField] private List<UI_LvlUp_UpgradeOption_Scr> UIlvlUpOptions;
 
-    public List<UpgradeTree_SO> upgradeTrees = new (); //TODO: добавляем, когда получаем новое оружие/ выбираем новый апгрейд
-    public List<bool[]> upgradeUnlockTracker = new List<bool[]> (); //TODO: нужно заселять лист
+    private List<UpgradeTree_SO> upgradeTrees = new (); //TODO: добавляем, когда получаем новое оружие/ выбираем новый апгрейд
 
-    
+    public Dictionary<string, UpgradeStatus[]> upgradeStatusTracker = new Dictionary<string, UpgradeStatus[]> ();
+    //TODO: добавлять новую пару при получении нового оружия
+    //TODO: при выборе нового улучшения обновлять словарь
+    //TODO: обновить поиск доступных улучшении при открытии окна повышения уровня
+
 
     private void Awake()
     {
@@ -60,7 +65,7 @@ public class UpgradeSystem_Scr : MonoBehaviour
         currentExp -= expForLvl;
         expForLvl = (int)(multiplierForNextLvl*expForLvl);
         currentLvl++;
-        OpenLvlUpMenu();
+        OpenNewLvlUpMenu();
     }
     public void InstantiateExpShards(Vector3 position, int expAmount)
     {
@@ -91,6 +96,23 @@ public class UpgradeSystem_Scr : MonoBehaviour
     {
         List<GenericUpgrade_SO> list = new List<GenericUpgrade_SO>();
         return list;
+    }
+    private List<(GenericUpgrade_SO,UpgradeTree_SO)> NewGetPossibleUpgrades()
+    {
+        List<(GenericUpgrade_SO, UpgradeTree_SO)> possibleList = new();
+        
+        foreach (UpgradeTree_SO tree in upgradeTrees)
+        {
+            for (int i = 0; i < tree.upgrades.Length; i++)
+            {
+                if (upgradeStatusTracker[tree.name][i] != UpgradeStatus.available)
+                    continue;
+
+                possibleList.Add((tree.upgrades[i],tree));
+            }
+        }
+
+        return possibleList;
     }
     /// <summary>
     /// Метод, открывающий меню выбора улучшений
@@ -148,6 +170,34 @@ public class UpgradeSystem_Scr : MonoBehaviour
         expBarUI.UpadteLVLtext(currentLvl);
         levelUpMenu.SetActive(false);
     }
+    private void OpenNewLvlUpMenu() 
+    {
+        //TODO:
+
+        List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> possibleUpgrades = NewGetPossibleUpgrades();
+
+        if (possibleUpgrades.Count == 0)
+        {
+            CloseLvlUpMenu();
+            return;
+        }
+
+        Time.timeScale = 0;
+        newLevelUpMenu.gameObject.SetActive(true);
+
+        int cnt = 3;
+        if (possibleUpgrades.Count < 3)
+            cnt = possibleUpgrades.Count;
+
+        List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> selectedUpgrades = NewSelectSample(possibleUpgrades, cnt);
+        newLevelUpMenu.UpdateUpgradeLists(selectedUpgrades);
+
+        //newLevelUpMenu.UpdateUpgradeLists()
+    }
+    public void CloseNewLvlUpMenu()
+    {
+        //TODO: 
+    }
 
     private void AddUpgradesToList() // TODO: придумать метод для добавления ScriptableObjects
     {
@@ -176,5 +226,45 @@ public class UpgradeSystem_Scr : MonoBehaviour
         }
 
         return samples;
+    }
+    private List<(GenericUpgrade_SO, UpgradeTree_SO)> NewSelectSample(List<(GenericUpgrade_SO, UpgradeTree_SO)> possibleList, int numberOfSamples)
+    {
+        List<(GenericUpgrade_SO, UpgradeTree_SO)> samples = new();
+        int itemsLeft = possibleList.Count;
+        int i = 0;
+        int samplesTaken = 0;
+
+        while (samplesTaken < numberOfSamples && i < possibleList.Count)
+        {
+            int rnd = UnityEngine.Random.Range(1, itemsLeft - i + 1);
+            if (rnd <= (numberOfSamples - samplesTaken))
+            {
+                samples.Add(possibleList[i]);
+                samplesTaken++;
+            }
+            i++;
+        }
+
+        return samples;
+    }
+
+    public void AddUpgradeTree(UpgradeTree_SO upgradeTree)
+    {
+        upgradeTrees.Add(upgradeTree);
+        upgradeStatusTracker.Add(
+            upgradeTree.name,
+            new UpgradeStatus[10] {
+                UpgradeStatus.available, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked,
+                UpgradeStatus.available, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked});
+    }
+}
+namespace Upgades
+{
+    public enum UpgradeStatus
+    {
+        locked,
+        available,
+        unlocked,
+        forgotten
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Android;
 using UnityEngine.UIElements;
 
 public class UI_UpgradeMenu_Scr : MonoBehaviour
@@ -17,10 +18,11 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
 
     private UIDocument uiDoc;
     private List<Button> treeButtons;
+    private List<Button> selectedUpgradesButtons;
     private Button selectButton, rerollButton, forgetButton;
 
 
-    private List<GenericUpgrade_SO> upgradesForChoise;
+    private List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> upgradesForChoise;
 
     private void Awake()
     {
@@ -54,6 +56,7 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
         selectButton = uiDoc.rootVisualElement.Q("Buttons").Q("SelectButton") as Button;
         rerollButton = uiDoc.rootVisualElement.Q("Buttons").Q("RerollButton") as Button;
         forgetButton = uiDoc.rootVisualElement.Q("Buttons").Q("ForgetButton") as Button;
+        selectedUpgradesButtons = uiDoc.rootVisualElement.Q("UpgradeSelection").Query<Button>().ToList(); // TODO: мб надо будет что-то добавить
 
 
         foreach (Button button in treeButtons)
@@ -77,6 +80,28 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
         }*/
     }
 
+    public void UpdateUpgradeLists(List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> possibleUpgrades)
+    {
+        upgradesForChoise = possibleUpgrades;
+        UpdateUpgradeVisuals();
+    }
+
+    private void UpdateUpgradeVisuals()
+    {
+        UpdateSelectedButtonsVisuals();
+    }
+    private void UpdateSelectedButtonsVisuals() //TODO: закончил здесь
+    {
+        for (int i = 0; i < selectedUpgradesButtons.Count; i++)
+        {
+            selectedUpgradesButtons[i].Children().ToList()[0].style.backgroundImage = new StyleBackground(upgradesForChoise[i].tree.icon);
+            selectedUpgradesButtons[i].Children().ToList()[1].style.backgroundImage = new StyleBackground(upgradesForChoise[i].upgr.icon);
+
+            //TODO: выключать VE если больше нет апгрейдов
+        }
+    }
+
+    #region ButtonEvents
     private void UpgradeTreeButtonClickEvent(Button btn)
     {
         foreach (Button button in treeButtons)
@@ -98,5 +123,5 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
     {
         //TODO:
     }
-
+    #endregion
 }

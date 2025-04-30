@@ -10,11 +10,9 @@ public class GenericUpgrade_SO : ScriptableObject
 {
     public string upgradeName;
     public string upgradeDescription;
-    [SerializeField] private float stat1ValueChange;
     [HideInInspector] public MonoBehaviour WeaponScript;
     [SerializeField] private string methodName;
     public Sprite icon;
-    public UpgradeTree_SO myTree;
 
     public void UpgradeAction()
     {
@@ -22,7 +20,7 @@ public class GenericUpgrade_SO : ScriptableObject
         MethodInfo method = gameObjectType.GetMethod(methodName);
         if (method != null)
         {
-            method.Invoke(WeaponScript, new object[] { stat1ValueChange });
+            method.Invoke(WeaponScript, new object[] {});
             Debug.Log(methodName + " is found and invoked");
         }
         else

@@ -34,18 +34,18 @@ public class Weapon_Machinegun : Weapon_Scr
         }
     }
 
-    public void UpgradeDamage(float damage)
+    public void UpgradeDamage()
     {
-        Player_Stats_Scr.Machinegun.damage += (int)damage;
+        Player_Stats_Scr.Machinegun.damage += 2;
         Player_Stats_Scr.Machinegun.projectileScale += 0.1f;
     }
-    public void UpgadeAttackSpeed(float delay)
+    public void UpgadeAttackSpeed()
     {
-        Player_Stats_Scr.Machinegun.spawnDelay -= delay;
+        Player_Stats_Scr.Machinegun.spawnDelay -= 0.1f;
     }
-    public void UpgradeProjCount(float count)
+    public void UpgradeProjCount()
     {
-        Player_Stats_Scr.Machinegun.projectileCount += (int)count;
+        Player_Stats_Scr.Machinegun.projectileCount += 1;
     }
 
 }
