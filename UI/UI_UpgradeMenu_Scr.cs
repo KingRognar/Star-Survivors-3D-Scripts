@@ -17,12 +17,15 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
 
 
     private UIDocument uiDoc;
-    private List<Button> treeButtons;
-    private List<Button> selectedUpgradesButtons;
+    private Button treeWeaponBtn;
+    private List<Button> treeUpgrBtns;
+    private List<Button> offeredUpgrBtns;
     private Button selectButton, rerollButton, forgetButton;
+    private Label upgrName, upgrDesc;
 
+    private List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> offeredUpgrades;
 
-    private List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> upgradesForChoise;
+    private int selectedTreeIndex = 0;
 
     private void Awake()
     {
@@ -38,7 +41,7 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
     }
     private void OnDestroy()
     {
-        foreach (Button button in treeButtons)
+        foreach (Button button in treeUpgrBtns)
         {
             button.UnregisterCallback<ClickEvent>(ev => UpgradeTreeButtonClickEvent(button));
         }
@@ -52,14 +55,21 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
     {
         uiDoc = GetComponent<UIDocument>();
 
-        treeButtons = uiDoc.rootVisualElement.Q("WeaponUpgradeTree").Query<Button>().Where(elem => elem.name != "WeaponRoot").ToList();
+        treeWeaponBtn = uiDoc.rootVisualElement.Q("WeaponUpgradeTree").Query<Button>().Where(elem => elem.name == "WeaponRoot");
+        treeUpgrBtns = uiDoc.rootVisualElement.Q("WeaponUpgradeTree").Query<Button>().Where(elem => elem.name != "WeaponRoot").ToList();
         selectButton = uiDoc.rootVisualElement.Q("Buttons").Q("SelectButton") as Button;
         rerollButton = uiDoc.rootVisualElement.Q("Buttons").Q("RerollButton") as Button;
         forgetButton = uiDoc.rootVisualElement.Q("Buttons").Q("ForgetButton") as Button;
-        selectedUpgradesButtons = uiDoc.rootVisualElement.Q("UpgradeSelection").Query<Button>().ToList(); // TODO: мб надо будет что-то добавить
+        offeredUpgrBtns = uiDoc.rootVisualElement.Q("UpgradeSelection").Query<Button>().ToList(); // TODO: мб надо будет что-то добавить
 
+        upgrName = uiDoc.rootVisualElement.Q("UpgradeDescription").Q("Name") as Label;
+        upgrDesc = uiDoc.rootVisualElement.Q("UpgradeDescription").Q("Description") as Label;
 
-        foreach (Button button in treeButtons)
+        foreach (Button button in offeredUpgrBtns)
+        {
+            button.RegisterCallback<ClickEvent>(ev => OfferedUpgradeButtonClickEvent(button));
+        }
+        foreach (Button button in treeUpgrBtns)
         {
             button.RegisterCallback<ClickEvent>(ev => UpgradeTreeButtonClickEvent(button));
         }
@@ -82,34 +92,67 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
 
     public void UpdateUpgradeLists(List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> possibleUpgrades)
     {
-        upgradesForChoise = possibleUpgrades;
-        UpdateUpgradeVisuals();
+        offeredUpgrades = possibleUpgrades;
+        InitialVusualsUpdate();
     }
 
-    private void UpdateUpgradeVisuals()
+    #region Update Visuals
+    private void InitialVusualsUpdate()
     {
         UpdateSelectedButtonsVisuals();
+        UpdateSelectedTree(selectedTreeIndex);
     }
-    private void UpdateSelectedButtonsVisuals() //TODO: закончил здесь
+    private void UpdateSelectedButtonsVisuals()
     {
-        for (int i = 0; i < selectedUpgradesButtons.Count; i++)
+        for (int i = 0; i < offeredUpgrBtns.Count; i++)
         {
-            selectedUpgradesButtons[i].Children().ToList()[0].style.backgroundImage = new StyleBackground(upgradesForChoise[i].tree.icon);
-            selectedUpgradesButtons[i].Children().ToList()[1].style.backgroundImage = new StyleBackground(upgradesForChoise[i].upgr.icon);
-
-            //TODO: выключать VE если больше нет апгрейдов
+            if (i < offeredUpgrades.Count)
+            {
+                offeredUpgrBtns[i].style.display = DisplayStyle.Flex;
+                //selectedUpgradesButtons[i].Children().ToList()[0].style.backgroundImage = new StyleBackground(upgradesForChoise[i].tree.icon);
+                //selectedUpgradesButtons[i].Children().ToList()[1].style.backgroundImage = new StyleBackground(upgradesForChoise[i].upgr.icon);
+                offeredUpgrBtns[i][0].style.backgroundImage = new StyleBackground(offeredUpgrades[i].tree.icon);
+                offeredUpgrBtns[i][1].style.backgroundImage = new StyleBackground(offeredUpgrades[i].upgr.icon);
+            } else
+            {
+                offeredUpgrBtns[i].style.display = DisplayStyle.None;
+            }
         }
     }
+    private void UpdateSelectedTree(int index)
+    {
+        //treeWeaponBtn.Children().ToList()[0].style.backgroundImage = 
+        treeWeaponBtn[0].style.backgroundImage = new StyleBackground(offeredUpgrades[index].tree.icon);
+        for (int i = 0; i < treeUpgrBtns.Count; i++)
+        {
+            treeUpgrBtns[i][0].style.backgroundImage = new StyleBackground(offeredUpgrades[index].tree.upgrades[i].icon);
+            //TODO: borders according to upgradeStatus
+        }
+    }
+    private void UpdateText(int treeIndex, int upgrIndex)
+    {
+        upgrName.text = offeredUpgrades[treeIndex].tree.upgrades[upgrIndex].upgradeName;
+        upgrDesc.text = offeredUpgrades[treeIndex].tree.upgrades[upgrIndex].upgradeDescription;
+    }
+    private void UpdateTreeBorders()
+    {
+        //TODO: 
+    }
+    #endregion
 
-    #region ButtonEvents
+    #region Button Events
     private void UpgradeTreeButtonClickEvent(Button btn)
     {
-        foreach (Button button in treeButtons)
+        foreach (Button button in treeUpgrBtns)
         {
             button.style.backgroundColor = Color.grey;
         }
 
         btn.style.backgroundColor = Color.white;
+
+        int i = 0;
+        while (treeUpgrBtns[i] != btn) { i++; }
+        UpdateText(selectedTreeIndex, i);
     }
     private void SelectButtonClickEvent(ClickEvent evt)
     {
@@ -122,6 +165,13 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
     private void ForgetButtonClickEvent(ClickEvent evt)
     {
         //TODO:
+    }
+    private void OfferedUpgradeButtonClickEvent(Button btn)
+    {
+        int i = 0;
+        while (offeredUpgrBtns[i] != btn) { i++; }
+        selectedTreeIndex = i;
+        UpdateSelectedTree(selectedTreeIndex);
     }
     #endregion
 }

@@ -254,8 +254,8 @@ public class UpgradeSystem_Scr : MonoBehaviour
         upgradeStatusTracker.Add(
             upgradeTree.name,
             new UpgradeStatus[10] {
-                UpgradeStatus.available, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked,
-                UpgradeStatus.available, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked});
+                UpgradeStatus.available, UpgradeStatus.available, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked,
+                UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked, UpgradeStatus.locked});
     }
 }
 namespace Upgades

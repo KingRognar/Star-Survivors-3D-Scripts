@@ -22,4 +22,17 @@ public class Weapon_RocketLauncher_Scr : Weapon_Scr
             //newBullet.transform.localScale = Vector3.one * Player_Stats_Scr.Machinegun.projectileScale;
         }
     }
+
+    void UpgradeProjectileSpeed()
+    {
+        Player_Stats_Scr.RocketLauncher.projectileSpeed += 5f;
+    }
+    void UpgradeProjectileDamage()
+    {
+        Player_Stats_Scr.RocketLauncher.damage += 1;
+    }
+    void UpgradeprojectileCount()
+    {
+        Player_Stats_Scr.RocketLauncher.projectileCount += 1;
+    }
 }
