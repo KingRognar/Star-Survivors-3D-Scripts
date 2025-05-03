@@ -27,7 +27,7 @@ public class UpgradeSystem_Scr : MonoBehaviour
     //TODO: добавлять новую пару при получении нового оружия
     //TODO: при выборе нового улучшения обновлять словарь
     //TODO: обновить поиск доступных улучшении при открытии окна повышения уровня
-
+    //TODO: постепенно замедлять\ускорять время при появлении меню улучшений
 
     private void Awake()
     {
@@ -197,6 +197,9 @@ public class UpgradeSystem_Scr : MonoBehaviour
     public void CloseNewLvlUpMenu()
     {
         //TODO: 
+
+        Time.timeScale = 1;
+        newLevelUpMenu.gameObject.SetActive(false);
     }
 
     private void AddUpgradesToList() // TODO: придумать метод для добавления ScriptableObjects

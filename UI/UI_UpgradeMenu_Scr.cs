@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.UIElements;
+using Upgades;
 
 public class UI_UpgradeMenu_Scr : MonoBehaviour
 {
@@ -25,15 +27,19 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
 
     private List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> offeredUpgrades;
 
+    private Dictionary<UpgradeStatus, Color> upStatus_ColorDict = new Dictionary<UpgradeStatus, Color>();
     private int selectedTreeIndex = 0;
+
+    private bool rerollUsed = false;
+    private bool forgetUsed = false;
 
     private void Awake()
     {
-        Initialize();
+        //Initialize();
     }
     private void OnEnable()
     {
-        
+        //Initialize();
     }
     private void OnDisable()
     {
@@ -77,21 +83,23 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
         rerollButton.RegisterCallback<ClickEvent>(RerollButtonClickEvent);
         forgetButton.RegisterCallback<ClickEvent>(ForgetButtonClickEvent);
 
+        InitializeDictionary();
 
-        AssignUpgradeIcons();
-    }
-    private void AssignUpgradeIcons()
+        rerollUsed = false;
+        forgetUsed = false;
+}
+    private void InitializeDictionary()
     {
-/*        for (int i = 0; i < treeButtons.Count; i++ )
-        {
-            Button btn = treeButtons[i];
-            if (weaponSO.upTree.upgrades[i] != null && weaponSO.upTree.upgrades[i].icon != null)
-                btn.Children().ToList()[0].style.backgroundImage = new StyleBackground(weaponSO.upTree.upgrades[i].icon);
-        }*/
+        upStatus_ColorDict.Clear();
+        upStatus_ColorDict.Add(UpgradeStatus.locked, Color.gray);
+        upStatus_ColorDict.Add(UpgradeStatus.available, Color.white);
+        upStatus_ColorDict.Add(UpgradeStatus.unlocked, Color.yellow);
+        upStatus_ColorDict.Add(UpgradeStatus.forgotten, Color.red);
     }
 
     public void UpdateUpgradeLists(List<(GenericUpgrade_SO upgr, UpgradeTree_SO tree)> possibleUpgrades)
     {
+        Initialize();
         offeredUpgrades = possibleUpgrades;
         InitialVusualsUpdate();
     }
@@ -136,27 +144,34 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
     }
     private void UpdateTreeBorders()
     {
-        //TODO: 
+        UpgradeStatus[] upgradeStatuses = UpgradeSystem_Scr.instance.upgradeStatusTracker[offeredUpgrades[selectedTreeIndex].tree.name];
+        for (int i = 0; i < treeUpgrBtns.Count; i++)
+        {
+            treeUpgrBtns[i].style.backgroundColor = upStatus_ColorDict[upgradeStatuses[i]];
+        }
     }
     #endregion
+
+    //TODO: прочекать как этот UI работает с Disable\Enable
 
     #region Button Events
     private void UpgradeTreeButtonClickEvent(Button btn)
     {
-        foreach (Button button in treeUpgrBtns)
+/*        foreach (Button button in treeUpgrBtns)
         {
             button.style.backgroundColor = Color.grey;
         }
 
-        btn.style.backgroundColor = Color.white;
+        btn.style.backgroundColor = Color.white;*/
 
         int i = 0;
         while (treeUpgrBtns[i] != btn) { i++; }
         UpdateText(selectedTreeIndex, i);
     }
-    private void SelectButtonClickEvent(ClickEvent evt)
+    private void SelectButtonClickEvent(ClickEvent evt) //TODO: исключать апгрейд из пула \ обновлять доступные крч
     {
-        //TODO:
+        offeredUpgrades[selectedTreeIndex].upgr.UpgradeAction();
+        UpgradeSystem_Scr.instance.CloseNewLvlUpMenu();
     }
     private void RerollButtonClickEvent(ClickEvent evt)
     {
@@ -172,6 +187,7 @@ public class UI_UpgradeMenu_Scr : MonoBehaviour
         while (offeredUpgrBtns[i] != btn) { i++; }
         selectedTreeIndex = i;
         UpdateSelectedTree(selectedTreeIndex);
+        UpdateTreeBorders();
     }
     #endregion
 }
